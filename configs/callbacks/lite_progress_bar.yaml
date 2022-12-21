@@ -1,0 +1,2 @@
+LiteProgressBar:
+  _target_: src.callbacks.lite_progress_bar.LiteProgressBar

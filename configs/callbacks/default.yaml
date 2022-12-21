@@ -1,0 +1,8 @@
+defaults:
+  - model_checkpoint.yaml
+  - early_stopping.yaml
+  - model_summary.yaml
+  - rich_progress_bar.yaml
+  - wandb.yaml
+  - _self_
+#  - lite_progress_bar.yaml

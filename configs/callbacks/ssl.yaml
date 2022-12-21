@@ -1,0 +1,34 @@
+ssl:
+  - model_checkpoint.yaml
+  - early_stopping.yaml
+  - model_summary.yaml
+  - rich_progress_bar.yaml
+  - wandb.yaml
+  - _self_
+#  - lite_progress_bar.yaml
+
+# To avoiding copying of loss and metric names, during hydra initialization
+# there is custom resolver which replaces __loss__ to loss.__class__.__name__
+# and __metric__ to main_metric.__class__.__name__,
+# for example: ${replace:"__metric__/valid"}
+# Use quotes for defining internal value in ${replace:"..."} to avoid
+# grammar problems with hydra config parser.
+
+model_checkpoint:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  monitor: ${replace:"__loss__/valid"}
+  mode: "min" # "min" means lower loss value is better
+  save_top_k: 5
+  save_last: True
+  verbose: False
+  dirpath: ${paths.output_dir}/checkpoints
+  filename: ${replace:"epoch{epoch:03d}-loss_valid{__loss__/valid:.4f}"}
+  auto_insert_metric_name: False
+
+early_stopping:
+  _target_: pytorch_lightning.callbacks.EarlyStopping
+  monitor: ${replace:"__loss__/valid"}
+  mode: "min" # "min" means lower loss value is better
+  patience: 15
+  min_delta: 5.0e-5
+  verbose: False

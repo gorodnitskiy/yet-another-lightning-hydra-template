@@ -1,0 +1,25 @@
+model:
+  _target_: src.modules.models.reindetification.ReIdentificator
+  model_name: "torchvision.models/resnet18"
+  use_pretrained: True
+  embedding_size: 512
+  proj_hidden_dim: 1536
+  bias: True
+  p: 3
+  gem_trainable: False
+  head_type: "fc" # 'gem'
+
+loss:
+  name: "AngularPenaltySMLoss"
+  weighted: False
+  split: "train"
+  params:
+    embedding_size: 512
+    num_classes: 57457
+    loss_type: "CosFace"
+
+metrics:
+  main:
+    _target_: "AccuracyManual"
+  valid_best:
+    _target_: "torchmetrics/MaxMetric"

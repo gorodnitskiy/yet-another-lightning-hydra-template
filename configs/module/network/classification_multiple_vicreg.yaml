@@ -1,0 +1,24 @@
+model:
+  _target_: src.modules.models.classification.ClassifierMultipleHead
+  model_name: "torchvision.models/resnext50_32x4d"
+  use_pretrained: True
+  num_classes: [92, 4]
+  freeze_params: null
+  bias: True
+  groups: 64
+
+loss:
+  name: "VicRegLoss"
+  weighted: False
+  split: "train"
+  dataset: null
+  params:
+    sim_loss_weight: 25.0
+    var_loss_weight: 25.0
+    cov_loss_weight: 1.0
+
+metrics:
+  main:
+    _target_: "AccuracyManual"
+  valid_best:
+    _target_: "torchmetrics/MaxMetric"

@@ -1,0 +1,19 @@
+_target_: src.datamodules.datamodules.SingleDataModule
+
+defaults:
+  - _self_
+  - loaders: loaders.yaml
+  - transforms: transforms.yaml
+
+datasets:
+  train:
+    _target_: src.datamodules.datasets.ClassificationDataset
+    lst_path: ${paths.data_dir}/train/data.lst
+
+  valid:
+    _target_: src.datamodules.datasets.ClassificationDataset
+    lst_path: ${paths.data_dir}/valid/data.lst
+
+  test:
+    _target_: src.datamodules.datasets.ClassificationDataset
+    lst_path: ${paths.data_dir}/test/data.lst

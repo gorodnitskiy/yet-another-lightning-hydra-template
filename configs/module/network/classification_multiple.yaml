@@ -1,0 +1,20 @@
+model:
+  _target_: src.modules.models.classification.ClassifierMultipleHead
+  model_name: "torchvision.models/resnext50_32x4d"
+  use_pretrained: True
+  num_classes: [92, 4]
+  freeze_params: null
+  bias: True
+  groups: 64
+
+loss:
+  name: "torch.nn/CrossEntropyLoss"
+  weighted: False
+  split: "train"
+  dataset: null
+
+metrics:
+  main:
+    _target_: "AccuracyManual"
+  valid_best:
+    _target_: "torchmetrics/MaxMetric"

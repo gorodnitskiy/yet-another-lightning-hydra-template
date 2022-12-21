@@ -1,0 +1,54 @@
+train:
+  order: [
+      "resize",
+      "random_crop",
+      "horizontal_flip",
+      "rotate",
+      "gauss_noise",
+      "random_brightness_contrast",
+      "normalize",
+  ]
+  resize:
+    _target_: albumentations.Resize
+    height: 256
+    width: 256
+    p: 1.0
+  random_crop:
+    _target_: albumentations.RandomCrop
+    height: 224
+    width: 224
+    p: 1.0
+  horizontal_flip:
+    _target_: albumentations.HorizontalFlip
+    p: 0.5
+  rotate:
+    _target_: albumentations.Rotate
+    limit: [-5, 5]
+    p: 0.5
+  gauss_noise:
+    _target_: albumentations.GaussNoise
+    var_limit: [0.0, 2.0]
+    p: 0.5
+  random_brightness_contrast:
+    _target_: albumentations.RandomBrightnessContrast
+    brightness_limit: [-0.2, 0.2]
+    contrast_limit: [-0.2, 0.2]
+    p: 0.5
+  normalize:
+    _target_: albumentations.Normalize
+    mean: [0.1307,]
+    std: [0.3081,]
+    p: 1.0
+
+valid_test:
+  order: ["resize", "normalize"]
+  resize:
+    _target_: albumentations.Resize
+    height: 224
+    width: 224
+    p: 1.0
+  normalize:
+    _target_: albumentations.Normalize
+    mean: [0.1307,]
+    std: [0.3081,]
+    p: 1.0

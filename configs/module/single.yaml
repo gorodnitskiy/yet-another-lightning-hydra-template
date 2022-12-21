@@ -1,0 +1,37 @@
+_target_: src.modules.single_module.SingleLitModule
+
+# To avoiding copying of loss and metric names, during hydra initialization
+# there is custom resolver which replaces __loss__ to loss.__class__.__name__
+# and __metric__ to main_metric.__class__.__name__,
+# for example: ${replace:"__metric__/valid"}
+# Use quotes for defining internal value in ${replace:"..."} to avoid
+# grammar problems with hydra config parser.
+
+defaults:
+  - _self_
+  - network: classification.yaml
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 3.0e-4
+  weight_decay: 1.0e-5
+  momentum: 0.9
+
+scheduler:
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    mode: "max"
+    factor: 0.3
+    min_lr: 1.0e-9
+    patience: 10
+    verbose: True
+  extras:
+    monitor: ${replace:"__metric__/valid"}
+    interval: "epoch"
+    frequency: 1
+
+logging:
+  on_step: False
+  on_epoch: True
+  sync_dist: True
+  prog_bar: True

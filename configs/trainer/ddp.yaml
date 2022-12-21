@@ -1,0 +1,26 @@
+defaults:
+  - default.yaml
+
+# use "ddp_spawn" instead of "ddp",
+# it's slower but normal "ddp" currently doesn't work ideally with hydra
+# https://github.com/facebookresearch/hydra/issues/2070
+# https://pytorch-lightning.readthedocs.io/en/latest/accelerators/gpu_intermediate.html#distributed-data-parallel-spawn
+strategy: ddp  # ddp_spawn
+
+accelerator: gpu
+devices: 4
+num_nodes: 1
+sync_batchnorm: True
+
+precision: 32
+
+gradient_clip_val: null
+gradient_clip_algorithm: null
+check_val_every_n_epoch: 1
+profiler: null
+deterministic: False
+reload_dataloaders_every_n_epochs: 0
+auto_lr_find: False,
+replace_sampler_ddp: True
+detect_anomaly: False
+auto_scale_batch_size: False

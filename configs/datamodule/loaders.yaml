@@ -1,0 +1,22 @@
+train:
+  batch_size: 320
+  # RandomSampler requires shuffle=False in
+  # dataloader, but shuffling by itself
+  shuffle: True
+  num_workers: 8
+  drop_last: True
+  pin_memory: True
+
+valid:
+  batch_size: 320
+  shuffle: False
+  num_workers: 8
+  drop_last: False
+  pin_memory: True
+
+test:
+  batch_size: 320
+  shuffle: False
+  num_workers: 8
+  drop_last: False
+  pin_memory: True

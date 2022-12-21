@@ -1,0 +1,22 @@
+_target_: src.datamodules.datamodules.SingleDataModule
+
+defaults:
+  - _self_
+  - loaders: loaders.yaml
+  - transforms: transforms.yaml
+
+datasets:
+  train:
+    _target_: src.datamodules.datasets.ClassificationDataset
+    json_path: ${paths.data_dir}/train/data.json
+    data_path: ${paths.data_dir}/train/data.h5
+
+  valid:
+    _target_: src.datamodules.datasets.ClassificationDataset
+    json_path: ${paths.data_dir}/valid/data.json
+    data_path: ${paths.data_dir}/valid/data.h5
+
+  test:
+    _target_: src.datamodules.datasets.ClassificationDataset
+    json_path: ${paths.data_dir}/test/data.json
+    data_path: ${paths.data_dir}/test/data.h5

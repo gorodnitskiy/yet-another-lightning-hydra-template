@@ -1,0 +1,23 @@
+model:
+  _target_: src.modules.models.classification.Classifier
+  model_name: "torchvision.models/mobilenet_v3_large"
+  use_pretrained: True
+  num_classes: 2
+  freeze_params: null
+  bias: True
+
+loss:
+  name: "torch.nn/CrossEntropyLoss"
+  weighted: False
+  split: "train"
+
+metrics:
+  main:
+    _target_: "torchmetrics/Accuracy"
+    task: "binary"
+  valid_best:
+    _target_: "torchmetrics/MaxMetric"
+  additional:
+    names: ["torchmetrics/AUROC"]
+    torchmetrics/AUROC:
+      task: "binary"
