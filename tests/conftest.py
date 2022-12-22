@@ -23,7 +23,10 @@ _HYDRA_PARAMS = {
 @pytest.fixture(scope="package")
 @register_custom_resolvers(config_name="mnist_train.yaml", **_HYDRA_PARAMS)
 def cfg_train_global() -> DictConfig:
-    with initialize_config_dir(version_base="1.3", config_dir=str(root / "configs")):
+    with initialize_config_dir(
+        version_base=_HYDRA_PARAMS["version_base"],
+        config_dir=_HYDRA_PARAMS["config_path"],
+    ):
         cfg = compose(
             config_name="mnist_train.yaml",
             return_hydra_config=True,
@@ -49,7 +52,10 @@ def cfg_train_global() -> DictConfig:
 @pytest.fixture(scope="package")
 @register_custom_resolvers(config_name="mnist_eval.yaml", **_HYDRA_PARAMS)
 def cfg_eval_global() -> DictConfig:
-    with initialize_config_dir(version_base="1.3", config_dir=str(root / "configs")):
+    with initialize_config_dir(
+        version_base=_HYDRA_PARAMS["version_base"],
+        config_dir=_HYDRA_PARAMS["config_path"],
+    ):
         cfg = compose(
             config_name="mnist_eval.yaml",
             return_hydra_config=True,
