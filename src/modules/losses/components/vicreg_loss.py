@@ -5,6 +5,7 @@ import torch.nn.functional as F
 def invariance_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
     """Computes mse loss given batch of projected features z1 from view 1 and
     projected features z2 from view 2.
+
     Args:
         z1 (torch.Tensor): NxD Tensor containing projected features from view 1.
         z2 (torch.Tensor): NxD Tensor containing projected features from view 2.
@@ -17,6 +18,7 @@ def invariance_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
 def variance_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
     """Computes variance loss given batch of projected features z1 from view 1
     and projected features z2 from view 2.
+
     Args:
         z1 (torch.Tensor): NxD Tensor containing projected features from view 1.
         z2 (torch.Tensor): NxD Tensor containing projected features from view 2.
@@ -31,8 +33,9 @@ def variance_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
 
 
 def covariance_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
-    """Computes covariance loss given batch of projected features z1 from view 1
-    and projected features z2 from view 2.
+    """Computes covariance loss given batch of projected features z1 from view
+    1 and projected features z2 from view 2.
+
     Args:
         z1 (torch.Tensor): NxD Tensor containing projected features from view 1.
         z2 (torch.Tensor): NxD Tensor containing projected features from view 2.
@@ -75,6 +78,7 @@ class VicRegLoss(torch.nn.Module):
     def forward(self, z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
         """Computes VICReg's loss given batch of projected features z1 from
         view 1 and projected features z2 from view 2.
+
         Args:
             z1 (torch.Tensor): NxD Tensor containing proj. features from view 1.
             z2 (torch.Tensor): NxD Tensor containing proj. features from view 2.

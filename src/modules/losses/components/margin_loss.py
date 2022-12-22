@@ -16,9 +16,9 @@ class AngularPenaltySMLoss(torch.nn.Module):
         margin: Optional[float] = None,
         eps: float = 1e-7,
     ) -> None:
-        """
-        Angular Penalty Softmax Loss
-        Three 'loss_types' available: ['arcface', 'sphereface', 'cosface']
+        """Angular Penalty Softmax Loss Three 'loss_types' available:
+
+        ['arcface', 'sphereface', 'cosface']
 
         These losses are described in the following papers:
         ArcFace: https://arxiv.org/abs/1801.07698
@@ -53,9 +53,7 @@ class AngularPenaltySMLoss(torch.nn.Module):
     def forward(
         self, input: torch.Tensor, label: torch.Tensor
     ) -> Tuple[torch.Tensor, ...]:
-        """
-        input shape: (B, embedding_size)
-        """
+        """input shape: (B, embedding_size)"""
         assert len(input) == len(label)
         assert torch.min(label) >= 0
         assert torch.max(label) < self.num_classes

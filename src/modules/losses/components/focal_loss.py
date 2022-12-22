@@ -4,6 +4,7 @@ from torch.nn import functional as fn
 
 def reduce(tensor: torch.Tensor, reduction: str) -> torch.Tensor:
     """Reduces the given tensor using a specific criterion.
+
     Args:
         tensor (torch.Tensor): input tensor
         reduction (str): string with fixed values [elementwise_mean, none, sum]

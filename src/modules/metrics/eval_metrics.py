@@ -38,7 +38,8 @@ def auroc(
     path: str = "",
     verbose: bool = True,
 ) -> float:
-    """Calculate and draw Area Under Receiver Operating Characteristic Curve."""
+    """Calculate and draw Area Under Receiver Operating Characteristic
+    Curve."""
     roc_auc = roc_auc_score(targets, probs)
     if verbose:
         print(f"AUROC={roc_auc:.5f}")
