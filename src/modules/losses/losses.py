@@ -1,8 +1,8 @@
 from typing import Any
 
-from torch import nn
 from omegaconf import DictConfig
 from segmentation_models_pytorch import losses
+from torch import nn
 
 from src.modules.losses.components.focal_loss import FocalLossManual
 from src.modules.losses.components.margin_loss import AngularPenaltySMLoss

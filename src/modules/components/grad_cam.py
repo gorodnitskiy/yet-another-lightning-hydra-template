@@ -1,7 +1,7 @@
 from typing import Any, Tuple
 
-import torch
 import matplotlib.pyplot as plt
+import torch
 from pytorch_grad_cam.utils.image import show_cam_on_image
 
 
@@ -30,4 +30,3 @@ def grad_cam_visualizer(
         plt.imshow(visualization)
         plt.title(f"pred:\n {pred}\n label: {label}")
         plt.axis("off")
-

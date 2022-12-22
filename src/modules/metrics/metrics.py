@@ -1,12 +1,15 @@
 from typing import Tuple
 
+import torchmetrics
 from omegaconf import DictConfig
 from torch.nn import ModuleList
-import torchmetrics
 from torchmetrics import Metric
 
 from src.modules.metrics.components.classification import (
-    AccuracyManual, MRRManual, NDCGManual, SentiMRRManual
+    AccuracyManual,
+    MRRManual,
+    NDCGManual,
+    SentiMRRManual,
 )
 from src.modules.metrics.components.segmentation import IoUManual
 
@@ -34,7 +37,7 @@ def load_metric(name: str, **kwargs) -> Metric:
 def load_metrics(config: DictConfig) -> Tuple[Metric, Metric, ModuleList]:
     main_metric = load_metric(
         config.main._target_,
-        **{k: v for k, v in config.main.items() if k != "_target_"}
+        **{k: v for k, v in config.main.items() if k != "_target_"},
     )
     if not config.get("valid_best"):
         raise RuntimeError(
