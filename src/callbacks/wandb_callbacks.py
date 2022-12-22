@@ -1,5 +1,5 @@
-import subprocess
 from pathlib import Path
+from subprocess import check_output, run  # nosec B404, B603, B607
 
 import wandb
 from pytorch_lightning import Callback, Trainer
@@ -49,7 +49,8 @@ class WatchModel(Callback):
 
 
 class UploadCodeAsArtifact(Callback):
-    """Upload all code files to wandb as an artifact, at the beginning of the run."""
+    """Upload all code files to wandb as an artifact, at the beginning of the
+    run."""
 
     def __init__(self, code_dir: str, use_git: bool = True) -> None:
         """
@@ -71,7 +72,7 @@ class UploadCodeAsArtifact(Callback):
         if self.use_git:
             # get .git folder path
             git_dir_path = Path(
-                subprocess.check_output(["git", "rev-parse", "--git-dir"])
+                check_output(["git", "rev-parse", "--git-dir"])
                 .strip()
                 .decode("utf8")
             ).resolve()
@@ -81,7 +82,7 @@ class UploadCodeAsArtifact(Callback):
                 # don't upload files ignored by git
                 # https://alexwlchan.net/2020/11/a-python-function-to-ignore-a-path-with-git-info-exclude/
                 command = ["git", "check-ignore", "-q", str(path)]
-                not_ignored = subprocess.run(command).returncode == 1
+                not_ignored = run(command).returncode == 1
 
                 # don't upload files from .git folder
                 not_git = not str(path).startswith(str(git_dir_path))
