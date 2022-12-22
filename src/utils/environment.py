@@ -4,7 +4,11 @@ from typing import Any, Dict, Iterable
 
 import numpy as np
 import torch
-from pynvml import *
+from pynvml import (
+    nvmlDeviceGetHandleByIndex,
+    nvmlDeviceGetMemoryInfo,
+    nvmlInit,
+)
 
 from src.utils import pylogger
 
@@ -27,12 +31,15 @@ def get_gpu_memory_info(cards: Iterable = GPU_CARDS) -> None:
 def set_seed(
     seed: int = 42, deterministic: bool = True, benchmark: bool = False
 ) -> None:
-    """Manually set seed:
+    """Manually set seeds, deterministic and benchmark modes.
+
+    Included seeds:
         - random.seed
         - np.random.seed
         - torch.random.manual_seed
         - torch.cuda.manual_seed
         - torch.cuda.manual_seed_all
+
     Also, manually set up deterministic and benchmark modes.
 
     Args:
@@ -53,7 +60,9 @@ def set_seed(
 
 
 def set_max_threads(max_threads: int = 32) -> None:
-    """Manually set max threads for:
+    """Manually set max threads.
+
+    Threads set up for:
     - OMP_NUM_THREADS
     - OPENBLAS_NUM_THREADS
     - MKL_NUM_THREADS
