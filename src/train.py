@@ -1,4 +1,18 @@
+from typing import Any, List, Optional, Tuple
+
+import hydra
 import pyrootutils
+from omegaconf import DictConfig
+from pytorch_lightning import (
+    Callback,
+    LightningDataModule,
+    LightningModule,
+    Trainer,
+    seed_everything,
+)
+from pytorch_lightning.loggers import LightningLoggerBase
+
+from src import utils
 
 # --------------------------------------------------------------------------- #
 # `pyrootutils.setup_root(...)` above is optional line to make environment more
@@ -29,20 +43,6 @@ import pyrootutils
 # https://github.com/ashleve/pyrootutils
 # --------------------------------------------------------------------------- #
 
-from typing import Any, List, Optional, Tuple
-
-import hydra
-from omegaconf import DictConfig
-from pytorch_lightning import (
-    Callback,
-    LightningDataModule,
-    LightningModule,
-    seed_everything,
-    Trainer,
-)
-from pytorch_lightning.loggers import LightningLoggerBase
-
-from src import utils
 
 root = pyrootutils.setup_root(
     search_from=__file__,
@@ -53,15 +53,15 @@ root = pyrootutils.setup_root(
 _HYDRA_PARAMS = {
     "version_base": "1.3",
     "config_path": str(root / "configs"),
-    "config_name": "train.yaml"
+    "config_name": "train.yaml",
 }
 log = utils.get_pylogger(__name__)
 
 
 @utils.task_wrapper
 def train(cfg: DictConfig) -> Tuple[dict, dict]:
-    """Trains the model. Can additionally evaluate on a testset,
-    using best weights obtained during training.
+    """Trains the model. Can additionally evaluate on a testset, using best
+    weights obtained during training.
 
     This method is wrapped in optional @task_wrapper decorator which applies
     extra utilities before and after the call.
@@ -106,7 +106,7 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
     )
 
     # Init lightning ddp plugins
-    log.info(f"Instantiating plugins...")
+    log.info("Instantiating plugins...")
     plugins: Optional[List[Any]] = utils.instantiate_plugins(cfg)
 
     # Init lightning trainer

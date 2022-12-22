@@ -1,4 +1,17 @@
+from typing import List, Tuple
+
+import hydra
 import pyrootutils
+from omegaconf import DictConfig
+from pytorch_lightning import (
+    LightningDataModule,
+    LightningModule,
+    Trainer,
+    seed_everything,
+)
+from pytorch_lightning.loggers import LightningLoggerBase
+
+from src import utils
 
 # --------------------------------------------------------------------------- #
 # `pyrootutils.setup_root(...)` above is optional line to make environment more
@@ -29,19 +42,6 @@ import pyrootutils
 # https://github.com/ashleve/pyrootutils
 # --------------------------------------------------------------------------- #
 
-from typing import List, Tuple
-
-import hydra
-from omegaconf import DictConfig
-from pytorch_lightning import (
-    LightningDataModule,
-    LightningModule,
-    seed_everything,
-    Trainer,
-)
-from pytorch_lightning.loggers import LightningLoggerBase
-
-from src import utils
 
 root = pyrootutils.setup_root(
     search_from=__file__,
@@ -52,7 +52,7 @@ root = pyrootutils.setup_root(
 _HYDRA_PARAMS = {
     "version_base": "1.3",
     "config_path": str(root / "configs"),
-    "config_name": "eval.yaml"
+    "config_name": "eval.yaml",
 }
 log = utils.get_pylogger(__name__)
 
@@ -60,6 +60,7 @@ log = utils.get_pylogger(__name__)
 @utils.task_wrapper
 def evaluate(cfg: DictConfig) -> Tuple[dict, dict]:
     """Evaluates given checkpoint on a datamodule testset.
+
     This method is wrapped in optional @task_wrapper decorator which applies
     extra utilities before and after the call.
     Args:
