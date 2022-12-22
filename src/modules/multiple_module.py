@@ -22,14 +22,20 @@ class MultipleLitModule(BaseLitModule):
             network, optimizer, scheduler, logging, *args, **kwargs
         )
         self.loss = load_loss(network.loss)
-        self.total_valid_metric, self.total_valid_metric_best, _ = \
-            load_metrics(network.metrics)
-        self.train_metric, _, self.train_add_metrics = \
-            load_metrics(network.metrics)
-        self.valid_metric, _, self.valid_add_metrics = \
-            load_metrics(network.metrics)
-        self.test_metric, _, self.test_add_metrics = \
-            load_metrics(network.metrics)
+        (
+            self.total_valid_metric,
+            self.total_valid_metric_best,
+            _,
+        ) = load_metrics(network.metrics)
+        self.train_metric, _, self.train_add_metrics = load_metrics(
+            network.metrics
+        )
+        self.valid_metric, _, self.valid_add_metrics = load_metrics(
+            network.metrics
+        )
+        self.test_metric, _, self.test_add_metrics = load_metrics(
+            network.metrics
+        )
         self.parts = network.parts
         self.save_hyperparameters(logger=False)
 
@@ -120,7 +126,7 @@ class MultipleLitModule(BaseLitModule):
         self.log(
             f"{self.total_valid_metric.__class__.__name__}/valid_best",
             self.total_valid_metric_best.compute(),
-            **self.logging_params
+            **self.logging_params,
         )
         self.total_valid_metric.reset()
 

@@ -43,9 +43,7 @@ class Classifier(BaseModule):
         super().__init__(model_name, model_repo, use_pretrained, freeze_params)
         bias = kwargs["bias"] if "bias" in kwargs else False
         in_features = self.model.fc.in_features
-        self.model.fc = torch.nn.Linear(
-            in_features, num_classes, bias=bias
-        )
+        self.model.fc = torch.nn.Linear(in_features, num_classes, bias=bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.model(x)
@@ -68,9 +66,7 @@ class ClassifierMultipleHead(BaseModule):
         self.heads = []
         for num_class in num_classes:
             self.heads.append(
-                ConvActLin(
-                    in_features, in_features, num_class, **kwargs
-                )
+                ConvActLin(in_features, in_features, num_class, **kwargs)
             )
 
     def forward(self, x: torch.Tensor) -> List[torch.Tensor]:

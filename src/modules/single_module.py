@@ -37,12 +37,17 @@ class SingleLitModule(BaseLitModule):
             network, optimizer, scheduler, logging, *args, **kwargs
         )
         self.loss = load_loss(network.loss)
-        self.train_metric, _, self.train_add_metrics = \
-            load_metrics(network.metrics)
-        self.valid_metric, self.valid_metric_best, self.valid_add_metrics = \
-            load_metrics(network.metrics)
-        self.test_metric, _, self.test_add_metrics = \
-            load_metrics(network.metrics)
+        self.train_metric, _, self.train_add_metrics = load_metrics(
+            network.metrics
+        )
+        (
+            self.valid_metric,
+            self.valid_metric_best,
+            self.valid_add_metrics,
+        ) = load_metrics(network.metrics)
+        self.test_metric, _, self.test_add_metrics = load_metrics(
+            network.metrics
+        )
         self.save_hyperparameters(logger=False)
 
     def model_step(self, batch, *args, **kwargs):
@@ -62,14 +67,14 @@ class SingleLitModule(BaseLitModule):
         self.log(
             f"{self.loss.__class__.__name__}/train",
             loss,
-            **self.logging_params
+            **self.logging_params,
         )
 
         self.train_metric(preds, targets)
         self.log(
             f"{self.train_metric.__class__.__name__}/train",
             self.train_metric,
-            **self.logging_params
+            **self.logging_params,
         )
 
         for train_add_metric in self.train_add_metrics:
@@ -77,7 +82,7 @@ class SingleLitModule(BaseLitModule):
             self.log(
                 f"{train_add_metric.__class__.__name__}/train",
                 add_metric_value,
-                **self.logging_params
+                **self.logging_params,
             )
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -96,14 +101,14 @@ class SingleLitModule(BaseLitModule):
         self.log(
             f"{self.loss.__class__.__name__}/valid",
             loss,
-            **self.logging_params
+            **self.logging_params,
         )
 
         self.valid_metric(preds, targets)
         self.log(
             f"{self.valid_metric.__class__.__name__}/valid",
             self.valid_metric,
-            **self.logging_params
+            **self.logging_params,
         )
 
         for valid_add_metric in self.valid_add_metrics:
@@ -111,7 +116,7 @@ class SingleLitModule(BaseLitModule):
             self.log(
                 f"{valid_add_metric.__class__.__name__}/valid",
                 add_metric_value,
-                **self.logging_params
+                **self.logging_params,
             )
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -124,22 +129,20 @@ class SingleLitModule(BaseLitModule):
         self.log(
             f"{self.valid_metric.__class__.__name__}/valid_best",
             self.valid_metric_best.compute(),
-            **self.logging_params
+            **self.logging_params,
         )
 
     def test_step(self, batch, batch_idx):
         loss, preds, targets = self.model_step(batch, batch_idx)
         self.log(
-            f"{self.loss.__class__.__name__}/test",
-            loss,
-            **self.logging_params
+            f"{self.loss.__class__.__name__}/test", loss, **self.logging_params
         )
 
         self.test_metric(preds, targets)
         self.log(
             f"{self.test_metric.__class__.__name__}/test",
             self.test_metric,
-            **self.logging_params
+            **self.logging_params,
         )
 
         for test_add_metric in self.test_add_metrics:
@@ -147,7 +150,7 @@ class SingleLitModule(BaseLitModule):
             self.log(
                 f"{test_add_metric.__class__.__name__}/test",
                 add_metric_value,
-                **self.logging_params
+                **self.logging_params,
             )
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -213,7 +216,7 @@ class SingleVicRegLitModule(BaseLitModule):
         self.log(
             f"{self.loss.__class__.__name__}/train",
             loss,
-            **self.logging_params
+            **self.logging_params,
         )
         return {"loss": loss}
 
@@ -225,7 +228,7 @@ class SingleVicRegLitModule(BaseLitModule):
         self.log(
             f"{self.loss.__class__.__name__}/valid",
             loss,
-            **self.logging_params
+            **self.logging_params,
         )
         return {"loss": loss}
 
@@ -235,9 +238,7 @@ class SingleVicRegLitModule(BaseLitModule):
     def test_step(self, batch, batch_idx):
         loss = self.model_step(batch, batch_idx)
         self.log(
-            f"{self.loss.__class__.__name__}/test",
-            loss,
-            **self.logging_params
+            f"{self.loss.__class__.__name__}/test", loss, **self.logging_params
         )
         return {"loss": loss}
 
@@ -260,14 +261,14 @@ class SingleReIdLitModule(SingleLitModule):
         self.log(
             f"{self.loss.__class__.__name__}/train",
             loss,
-            **self.logging_params
+            **self.logging_params,
         )
 
         self.train_metric(preds, targets)
         self.log(
             f"{self.train_metric.__class__.__name__}/train",
             self.train_metric,
-            **self.logging_params
+            **self.logging_params,
         )
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -279,14 +280,14 @@ class SingleReIdLitModule(SingleLitModule):
         self.log(
             f"{self.loss.__class__.__name__}/valid",
             loss,
-            **self.logging_params
+            **self.logging_params,
         )
 
         self.valid_metric(preds, targets)
         self.log(
             f"{self.valid_metric.__class__.__name__}/valid",
             self.valid_metric,
-            **self.logging_params
+            **self.logging_params,
         )
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -296,15 +297,13 @@ class SingleReIdLitModule(SingleLitModule):
             loss, logits = self.loss(embeddings, batch["label"])
         preds = torch.softmax(logits, dim=1)
         self.log(
-            f"{self.loss.__class__.__name__}/test",
-            loss,
-            **self.logging_params
+            f"{self.loss.__class__.__name__}/test", loss, **self.logging_params
         )
 
         self.test_metric(preds, targets)
         self.log(
             f"{self.test_metric.__class__.__name__}/test",
             self.test_metric,
-            **self.logging_params
+            **self.logging_params,
         )
         return {"loss": loss, "preds": preds, "targets": targets}

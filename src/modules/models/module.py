@@ -1,9 +1,9 @@
 from typing import Any, List, Optional
 
+import segmentation_models_pytorch as seg_models
 import timm
 import torch
 import torchvision.models as models
-import segmentation_models_pytorch as seg_models
 
 
 def set_parameter_requires_grad(
@@ -34,8 +34,8 @@ class BaseModule(torch.nn.Module):
         freeze_params: Any = None,
         **kwargs,
     ) -> None:
-        """
-        Available models registries:
+        """Available models registries:
+
         - torchvision.models
         - segmentation_models_pytorch
         - timm
@@ -75,7 +75,9 @@ class BaseModule(torch.nn.Module):
         return timm.list_models(*args, **kwargs)
 
     @staticmethod
-    def get_torch_hub_list_models(model_repo: str, *args, **kwargs) -> List[Any]:
+    def get_torch_hub_list_models(
+        model_repo: str, *args, **kwargs
+    ) -> List[Any]:
         """
         github: (str) – a string with format <repo_owner/repo_name
         """
