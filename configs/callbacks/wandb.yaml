@@ -6,8 +6,3 @@ upload_ckpts_as_artifact:
   _target_: src.callbacks.wandb_callbacks.UploadCheckpointsAsArtifact
   ckpt_dir: ${paths.output_dir}/checkpoints
   upload_best_only: True
-
-#watch_model:
-#  _target_: src.callbacks.wandb_callbacks.WatchModel
-#  log: "all"
-#  log_freq: 100
