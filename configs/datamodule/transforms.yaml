@@ -1,5 +1,6 @@
 train:
-  order: [
+  order:
+    [
       "resize",
       "random_crop",
       "horizontal_flip",
@@ -7,7 +8,7 @@ train:
       "gauss_noise",
       "random_brightness_contrast",
       "normalize",
-  ]
+    ]
   resize:
     _target_: albumentations.Resize
     height: 256
@@ -36,8 +37,8 @@ train:
     p: 0.5
   normalize:
     _target_: albumentations.Normalize
-    mean: [0.1307,]
-    std: [0.3081,]
+    mean: [0.1307]
+    std: [0.3081]
     p: 1.0
 
 valid_test:
@@ -49,6 +50,6 @@ valid_test:
     p: 1.0
   normalize:
     _target_: albumentations.Normalize
-    mean: [0.1307,]
-    std: [0.3081,]
+    mean: [0.1307]
+    std: [0.3081]
     p: 1.0

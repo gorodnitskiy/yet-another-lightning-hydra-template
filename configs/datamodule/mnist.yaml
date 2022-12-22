@@ -7,19 +7,19 @@ datasets:
 
 transforms:
   train:
-    order: ["normalize",]
+    order: ["normalize"]
     normalize:
       _target_: albumentations.Normalize
-      mean: [0.1307,]
-      std: [0.3081,]
+      mean: [0.1307]
+      std: [0.3081]
       p: 1.0
 
   valid_test:
-    order: ["normalize",]
+    order: ["normalize"]
     normalize:
       _target_: albumentations.Normalize
-      mean: [0.1307,]
-      std: [0.3081,]
+      mean: [0.1307]
+      std: [0.3081]
       p: 1.0
 
 loaders:

@@ -13,4 +13,4 @@ plugins: null
 # model state dict
 state_dict_saving_params:
   symbols: 6
-  exceptions: ["loss",]
+  exceptions: ["loss"]
