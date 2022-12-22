@@ -1,9 +1,9 @@
-from typing import Any, Callable, Dict, List, Optional, Tuple
 import copy
 import datetime
 import math
 import os
 import time
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from pytorch_lightning.callbacks import ProgressBarBase
 
@@ -143,7 +143,9 @@ def view_status(inp: Any, display_len: int = 80) -> str:
                 new_strings.append(
                     colorize_string(to_print, split_colors, padding=padding)
                 )
-                string = " " * (max_len + 1) + string[(splitter_location + 3):]
+                string = (
+                    " " * (max_len + 1) + string[(splitter_location + 3) :]
+                )
                 position += splitter_location + 3 - padding
                 padding = max_len + 1
             else:
@@ -186,7 +188,7 @@ def get_width() -> int:
     return 100
 
 
-class StageProgressBar(object):
+class StageProgressBar:
     def __init__(
         self, width_function: Callable, display_id: str = f"ep{0}"
     ) -> None:
@@ -238,7 +240,7 @@ def progress_str(width: int, state: float) -> str:
         return "[" + "=" * width + "]"
 
 
-class TimeEstimator(object):
+class TimeEstimator:
     def __init__(self, eta_threshold: float = 0.001) -> None:
         self.eta_threshold = eta_threshold
         self.start_time = time.time()
@@ -366,6 +368,4 @@ class LiteProgressBar(ProgressBarBase):
 
     def on_validation_batch_end(self, *args, **kwargs) -> None:
         super().on_validation_batch_end(*args, **kwargs)
-        self.step(
-            "val", self.val_batch_idx, self.total_val_batches, *args
-        )
+        self.step("val", self.val_batch_idx, self.total_val_batches, *args)
