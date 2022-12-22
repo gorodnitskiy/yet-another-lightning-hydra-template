@@ -1,7 +1,7 @@
 from typing import Any, Dict, Tuple
 
-import pytest
 import omegaconf
+import pytest
 
 from src.modules.metrics.metrics import load_metric, load_metrics
 
@@ -24,13 +24,13 @@ _CFG_METRICS = [
             "_target_": "torchmetrics/Accuracy",
             "task": "multiclass",
             "num_classes": 10,
-            "top_k": 1
+            "top_k": 1,
         },
         "valid_best": {"_target_": "torchmetrics/MaxMetric"},
         "additional": {
             "names": ["torchmetrics/AUROC"],
-            "torchmetrics/AUROC": {"task": "multiclass", "num_classes": 10}
-        }
+            "torchmetrics/AUROC": {"task": "multiclass", "num_classes": 10},
+        },
     },
     {
         "main": {"_target_": "torchmetrics/Accuracy", "task": "binary"},
@@ -38,13 +38,13 @@ _CFG_METRICS = [
         "additional": {
             "names": ["torchmetrics/JaccardIndex", "torchmetrics/AUROC"],
             "torchmetrics/JaccardIndex": {"task": "binary"},
-            "torchmetrics/AUROC": {"task": "binary"}
-        }
+            "torchmetrics/AUROC": {"task": "binary"},
+        },
     },
     {
         "main": {"_target_": "AccuracyManual"},
-        "valid_best": {"_target_": "torchmetrics/MaxMetric"}
-    }
+        "valid_best": {"_target_": "torchmetrics/MaxMetric"},
+    },
 ]
 
 

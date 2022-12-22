@@ -37,4 +37,10 @@ def test_train_eval(tmp_path, cfg_train, cfg_eval):
 
     metric = "MulticlassAccuracy"
     assert test_metric_dict[f"{metric}/test"] > 0.0
-    assert abs(train_metric_dict[f"{metric}/test"].item() - test_metric_dict[f"{metric}/test"].item()) < 0.001
+    assert (
+        abs(
+            train_metric_dict[f"{metric}/test"].item()
+            - test_metric_dict[f"{metric}/test"].item()
+        )
+        < 0.001
+    )
