@@ -1,21 +1,25 @@
 from pathlib import Path
-from omegaconf import DictConfig
 from shutil import copytree
+from subprocess import (  # nosec B404, B603
+    STDOUT,
+    SubprocessError,
+    check_output,
+)
 
-import subprocess
+from omegaconf import DictConfig
 
 
 def run(cmd, allow_fail=True, no_env=True):
     """Run shell command by subprocess."""
     try:
-        output = subprocess.check_output(
+        output = check_output(
             cmd,
-            stderr=subprocess.STDOUT,
+            stderr=STDOUT,
             text=True,
-            shell=True,
+            shell=False,
             env={} if no_env else None,
         )
-    except subprocess.SubprocessError as exception:
+    except SubprocessError as exception:
         if allow_fail:
             output = f"{exception}\n\n{exception.output}"
         else:
@@ -28,8 +32,8 @@ def pip_metadata(path: Path) -> None:
     (path / "pip_metadata.txt").write_text(
         "\n".join(
             [
-                run(f"pip freeze --disable-pip-version-check"),
-                run(f"pip freeze --disable-pip-version-check --user"),
+                run("pip freeze --disable-pip-version-check"),
+                run("pip freeze --disable-pip-version-check --user"),
             ]
         )
     )
@@ -40,11 +44,11 @@ def git_metadata(path: Path) -> None:
     (path / "git_metadata.txt").write_text(
         "\n".join(
             [
-                run(f"git describe --tags --long --dirty --always"),
-                run(f"git describe --all --long --dirty --always"),
-                run(f"git branch --verbose --verbose --all"),
-                run(f"git remote --verbose"),
-                run(f"git status"),
+                run("git describe --tags --long --dirty --always"),
+                run("git describe --all --long --dirty --always"),
+                run("git branch --verbose --verbose --all"),
+                run("git remote --verbose"),
+                run("git status"),
             ]
         )
     )
@@ -80,7 +84,10 @@ def save_code_as_artifact(cfg: DictConfig) -> None:
 
 
 def log_metadata(cfg: DictConfig) -> None:
-    """Logging pip, git and GPU metadata. Save code and configs folders."""
+    """Logging pip, git and GPU metadata.
+
+    Save code and configs folders.
+    """
     path = Path(cfg.paths.output_dir)
     pip_metadata(path)
     git_metadata(path)
