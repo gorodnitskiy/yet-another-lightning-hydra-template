@@ -1,8 +1,7 @@
-import pytest
 import omegaconf
+import pytest
 
 from src.modules.losses.losses import load_loss
-
 
 _IMPLEMENTED_LOSS_NAMES = (
     "AngularPenaltySMLoss",

@@ -1,13 +1,12 @@
 from typing import Any, Dict
 
-
 from src.callbacks.lite_progress_bar import (
-    format_status,
-    dict_to_multi_dict,
-    get_width,
     LiteProgressBar,
     StageProgressBar,
     TimeEstimator,
+    dict_to_multi_dict,
+    format_status,
+    get_width,
     view_status,
 )
 

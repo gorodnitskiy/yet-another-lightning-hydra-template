@@ -3,7 +3,6 @@ from pathlib import Path
 import hydra
 import pytest
 import torch
-
 from omegaconf import DictConfig, open_dict
 
 from src.datamodules.mnist_datamodule import MNISTDataModule
