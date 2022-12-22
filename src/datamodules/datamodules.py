@@ -1,5 +1,5 @@
-from typing import Any, Dict, List, Optional, Union
 from collections import OrderedDict
+from typing import Any, Dict, List, Optional, Union
 
 import hydra
 import numpy as np
@@ -57,8 +57,8 @@ class SingleDataModule(LightningDataModule):
         return dataset
 
     def setup(self, stage: Optional[str] = None) -> None:
-        """Load data.
-        Set variables: `self.train_set`, `self.valid_set`, `self.test_set`.
+        """Load data. Set variables: `self.train_set`, `self.valid_set`,
+        `self.test_set`.
 
         This method is called by lightning with both `trainer.fit()` and
         `trainer.test()`, so be careful not to execute things like random split
@@ -72,8 +72,9 @@ class SingleDataModule(LightningDataModule):
 
     def get_weights(self, split_name: str) -> torch.Tensor:
         dataset: Any = self._get_dataset_(split_name)
-        assert hasattr(dataset, "get_labels"), \
-            "Dataset should have get_labels method"
+        assert hasattr(
+            dataset, "get_labels"
+        ), "Dataset should have get_labels method"
         label_list = dataset.get_labels()
         counts = np.bincount(label_list)
         weights = torch.from_numpy(1.0 / counts).float()
@@ -112,8 +113,8 @@ class MultipleDataModule(LightningDataModule):
         return dataset
 
     def setup(self, stage: Optional[str] = None) -> None:
-        """Load data.
-        Set variables: `self.train_set`, `self.valid_set`, `self.test_set`.
+        """Load data. Set variables: `self.train_set`, `self.valid_set`,
+        `self.test_set`.
 
         This method is called by lightning with both `trainer.fit()` and
         `trainer.test()`, so be careful not to execute things like random split
@@ -136,8 +137,9 @@ class MultipleDataModule(LightningDataModule):
 
     def get_weights(self, dataset_name: str, split_name: str) -> torch.Tensor:
         dataset: Any = self._get_dataset_(dataset_name, split_name)
-        assert hasattr(dataset, "get_labels"), \
-            "Dataset should have get_labels method"
+        assert hasattr(
+            dataset, "get_labels"
+        ), "Dataset should have get_labels method"
         label_list = dataset.get_labels()
         counts = np.bincount(label_list)
         weights = torch.from_numpy(1.0 / counts).float()
@@ -164,7 +166,5 @@ class MultipleDataModule(LightningDataModule):
     def test_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
         loaders = []
         for _, dataset in self.test_set.items():
-            loaders.append(
-                DataLoader(dataset, **self.cfg_loaders.get("test"))
-            )
+            loaders.append(DataLoader(dataset, **self.cfg_loaders.get("test")))
         return loaders

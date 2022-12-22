@@ -1,11 +1,9 @@
 from typing import Any
 
-from omegaconf import DictConfig
-
+import albumentations
 import hydra
 import numpy as np
-import albumentations
-
+from omegaconf import DictConfig
 from PIL import Image
 
 

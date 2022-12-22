@@ -1,11 +1,11 @@
 import io
+from pathlib import Path
 from typing import Any, Callable, List, Optional
 
 import cv2
 import numpy as np
 import torch
 from PIL import Image
-from pathlib import Path
 from torch.utils.data import Dataset
 
 

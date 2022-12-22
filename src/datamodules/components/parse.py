@@ -25,7 +25,7 @@ def parse_image_paths(
 
     if lst_paths:
         for lst_path in lst_paths:
-            with open(lst_path , "r") as lst_file:
+            with open(lst_path) as lst_file:
                 for line in lst_file:
                     img_path = line[:-1].split("\t")[-1]
                     img_paths.append(img_path)

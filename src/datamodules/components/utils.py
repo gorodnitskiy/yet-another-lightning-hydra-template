@@ -7,6 +7,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 class DatasetFromSampler(Dataset):
     """Dataset to create indexes from `Sampler`.
+
     Args:
         sampler: PyTorch sampler
     """
@@ -18,6 +19,7 @@ class DatasetFromSampler(Dataset):
 
     def __getitem__(self, index: int):
         """Gets element of the dataset.
+
         Args:
             index: index of the element in the dataset
         Returns:
@@ -36,16 +38,14 @@ class DatasetFromSampler(Dataset):
 
 
 class DistributedSamplerWrapper(DistributedSampler):
-    """
-    Wrapper over `Sampler` for distributed training.
-    Allows you to use any sampler in distributed mode.
-    It is especially useful in conjunction with
-    `torch.nn.parallel.DistributedDataParallel`. In such case, each
-    process can pass a DistributedSamplerWrapper instance as a DataLoader
-    sampler, and load a subset of subsampled data of the original dataset
-    that is exclusive to it.
-    .. note::
-        Sampler is assumed to be of constant size.
+    """Wrapper over `Sampler` for distributed training. Allows you to use any
+    sampler in distributed mode. It is especially useful in conjunction with
+    `torch.nn.parallel.DistributedDataParallel`. In such case, each process can
+    pass a DistributedSamplerWrapper instance as a DataLoader sampler, and load
+    a subset of subsampled data of the original dataset that is exclusive to
+    it.
+
+    .. note::     Sampler is assumed to be of constant size.
     """
 
     def __init__(
@@ -75,6 +75,7 @@ class DistributedSamplerWrapper(DistributedSampler):
 
     def __iter__(self) -> Iterator[int]:
         """Iterate over sampler.
+
         Returns:
             python iterator
         """

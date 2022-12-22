@@ -1,15 +1,14 @@
-from typing import Any, Dict, Callable, Iterable, List, Optional, Tuple
-
 import concurrent.futures as futures
 import itertools
 import os
-from pathlib import Path
 import queue
 import weakref
+from pathlib import Path
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 import h5py
-from tqdm import tqdm
 import numpy as np
+from tqdm import tqdm
 
 _H5PY_FILES_CACHE = weakref.WeakValueDictionary()
 
@@ -37,9 +36,8 @@ def parallel_generator(
             yield thread_queue.get().result()
 
 
-class H5PyFile(object):
-    """
-    This is a wrapper around a h5py file/dataset, which discards the open
+class H5PyFile:
+    """This is a wrapper around a h5py file/dataset, which discards the open
     dataset, when pickling and reopens it, when unpickling, instead of trying
     to pickle the h5py.File object itself.
 
@@ -104,8 +102,7 @@ class H5PyFile(object):
         dirname: Optional[str] = None,
         verbose: bool = True,
     ) -> None:
-        """
-        Create h5py file for dataset from scratch.
+        """Create h5py file for dataset from scratch.
 
         Args:
             filename (str): Name for h5py file.

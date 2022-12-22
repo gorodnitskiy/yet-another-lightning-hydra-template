@@ -1,14 +1,13 @@
 import json
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 import torch
 
-from pathlib import Path
-
 from src.datamodules.components.dataset import BaseDataset
-from src.datamodules.components.parse import parse_image_paths
 from src.datamodules.components.h5_file import H5PyFile
+from src.datamodules.components.parse import parse_image_paths
 
 
 class ClassificationDataset(BaseDataset):
@@ -29,14 +28,14 @@ class ClassificationDataset(BaseDataset):
             json_path = Path(json_path)
             if not json_path.is_file():
                 raise RuntimeError(f"'{json_path}' must be a file.")
-            with open(json_path, "r") as json_file:
+            with open(json_path) as json_file:
                 self.annotation = json.load(json_file)
         else:
             lst_path = Path(lst_path)
             if not lst_path.is_file():
                 raise RuntimeError(f"'{lst_path}' must be a file.")
             self.annotation = {}
-            with open(lst_path, "r") as lst_file:
+            with open(lst_path) as lst_file:
                 for line in lst_file:
                     _, label, path = line[:-1].split("\t")
                     self.annotation[path] = label
@@ -55,14 +54,13 @@ class ClassificationDataset(BaseDataset):
         return len(self.keys)
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
-        """
-        Do not open h5 file only once, for example in class initialization!
+        """Do not open h5 file only once, for example in class initialization!
+
         PyTorch use lazy evaluations, so in this case multi-threading isn't
-        capable and dataloader will be work with only 1 worker (file was
-        opened only 1 time).
-        For dealing with it, open h5 file in each method which forwards to
-        h5 file content. In this case each dataloader worker can open
-        h5 file regardless of class initialization.
+        capable and dataloader will be work with only 1 worker (file was opened
+        only 1 time). For dealing with it, open h5 file in each method which
+        forwards to h5 file content. In this case each dataloader worker can
+        open h5 file regardless of class initialization.
         """
         key = self.keys[index]
         if self.data_file is None:
@@ -121,7 +119,7 @@ class OnlyImagesDataset(BaseDataset):
         elif json_paths:
             self.keys = []
             for json_path in json_paths:
-                with open(json_path, "r") as json_file:
+                with open(json_path) as json_file:
                     data = json.load(json_file)
                 for path in data.keys():
                     self.keys.append(path)
