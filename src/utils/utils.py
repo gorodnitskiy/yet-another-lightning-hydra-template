@@ -1,7 +1,7 @@
 import warnings
+from functools import wraps
 from importlib.util import find_spec
 from typing import Any, Callable, List, Optional
-from functools import wraps
 
 import hydra
 from hydra import compose, initialize_config_dir
@@ -11,9 +11,9 @@ from pytorch_lightning import Callback
 from pytorch_lightning.loggers import LightningLoggerBase
 from pytorch_lightning.utilities import rank_zero_only
 
-from src.utils import pylogger, rich_utils
 from src.modules.losses.losses import load_loss
 from src.modules.metrics.metrics import load_metrics
+from src.utils import pylogger, rich_utils
 
 log = pylogger.get_pylogger(__name__)
 
@@ -80,7 +80,9 @@ def extras(cfg: DictConfig) -> None:
 
     # disable python warnings
     if cfg.extras.get("ignore_warnings"):
-        log.info("Disabling python warnings! <cfg.extras.ignore_warnings=True>")
+        log.info(
+            "Disabling python warnings! <cfg.extras.ignore_warnings=True>"
+        )
         warnings.filterwarnings("ignore")
 
     # prompt user to input tags from command line if none are provided in the config
@@ -90,7 +92,9 @@ def extras(cfg: DictConfig) -> None:
 
     # pretty print config tree using Rich library
     if cfg.extras.get("print_config"):
-        log.info("Printing config tree with Rich! <cfg.extras.print_config=True>")
+        log.info(
+            "Printing config tree with Rich! <cfg.extras.print_config=True>"
+        )
         rich_utils.print_config_tree(cfg, resolve=True, save_to_file=True)
 
 
@@ -198,7 +202,8 @@ def get_metric_value(metric_dict: dict, metric_name: str) -> Optional[float]:
 
 
 def close_loggers() -> None:
-    """Makes sure all loggers closed properly (prevents logging failure during multirun)."""
+    """Makes sure all loggers closed properly (prevents logging failure during
+    multirun)."""
 
     log.info("Closing loggers...")
 
@@ -223,9 +228,8 @@ def instantiate_plugins(cfg: DictConfig) -> Optional[List[Any]]:
         log.warning("No plugins configs found! Skipping...")
         return
 
-    if (
-        (cfg.trainer.get("accelerator") == "cpu")
-        or not cfg.trainer.get("devices")
+    if (cfg.trainer.get("accelerator") == "cpu") or not cfg.trainer.get(
+        "devices"
     ):
         log.warning(
             "Using CPU as accelerator or no devices found! Skipping..."
@@ -233,9 +237,8 @@ def instantiate_plugins(cfg: DictConfig) -> Optional[List[Any]]:
         return
 
     devices = cfg.trainer.get("devices")
-    if (
-        (isinstance(devices, int) and (devices in (0, 1)))
-        or (isinstance(devices, (list, tuple)) and len(devices) == 1)
+    if (isinstance(devices, int) and (devices in (0, 1))) or (
+        isinstance(devices, (list, tuple)) and len(devices) == 1
     ):
         log.warning("Using only 1 device! Skipping...")
         return
@@ -252,16 +255,15 @@ def instantiate_plugins(cfg: DictConfig) -> Optional[List[Any]]:
 def register_custom_resolvers(
     version_base: str, config_path: str, config_name: str
 ) -> Callable:
-    """Decorator to register custom OmegaConf resolvers.
-    It is excepted to call before hydra.main decorator call.
+    """Decorator to register custom OmegaConf resolvers. It is excepted to call
+    before hydra.main decorator call.
 
-    Replace resolver:
-    To avoiding copying of loss and metric names in configs, there is
-    custom resolver during hydra initialization which replaces __loss__
-    to loss.__class__.__name__ and __metric__ to main_metric.__class__.__name__
-    For example: ${replace:"__metric__/valid"}
-    Use quotes for defining internal value in ${replace:"..."} to avoid
-    grammar problems with hydra config parser.
+    Replace resolver: To avoiding copying of loss and metric names in configs,
+    there is custom resolver during hydra initialization which replaces
+    __loss__ to loss.__class__.__name__ and __metric__ to
+    main_metric.__class__.__name__ For example: ${replace:"__metric__/valid"}
+    Use quotes for defining internal value in ${replace:"..."} to avoid grammar
+    problems with hydra config parser.
     """
     # register of replace resolver
     if not OmegaConf.has_resolver("replace"):
@@ -280,9 +282,7 @@ def register_custom_resolvers(
             "replace",
             lambda item: item.replace(
                 "__loss__", loss.__class__.__name__
-            ).replace(
-                "__metric__", metric.__class__.__name__
-            )
+            ).replace("__metric__", metric.__class__.__name__),
         )
 
     def decorator(function: Callable) -> Callable:
