@@ -49,10 +49,15 @@ class SingleDataModule(LightningDataModule):
         self.valid_set: Optional[Dataset] = None
         self.test_set: Optional[Dataset] = None
 
-    def _get_dataset_(self, split_name: str) -> Dataset:
+    def _get_dataset_(
+        self, split_name: str, dataset_name: Optional[str] = None
+    ) -> Dataset:
         self.transforms.set_stage(split_name)
+        cfg = self.cfg_datasets.get(split_name)
+        if dataset_name:
+            cfg = cfg.get(dataset_name)
         dataset: Dataset = hydra.utils.instantiate(
-            self.cfg_datasets.get(split_name), transforms=self.transforms
+            cfg, transforms=self.transforms
         )
         return dataset
 
@@ -70,8 +75,12 @@ class SingleDataModule(LightningDataModule):
             self.valid_set = self._get_dataset_("valid")
             self.test_set = self._get_dataset_("test")
 
-    def get_weights(self, split_name: str) -> torch.Tensor:
-        dataset: Any = self._get_dataset_(split_name)
+    def get_weights(
+        self, split_name: str, dataset_name: Optional[str] = None
+    ) -> torch.Tensor:
+        dataset: Any = self._get_dataset_(
+            split_name, dataset_name=dataset_name
+        )
         assert hasattr(
             dataset, "get_labels"
         ), "Dataset should have get_labels method"
@@ -92,25 +101,16 @@ class SingleDataModule(LightningDataModule):
         return DataLoader(self.test_set, **self.cfg_loaders.get("test"))
 
 
-class MultipleDataModule(LightningDataModule):
+class MultipleDataModule(SingleDataModule):
     def __init__(
         self, datasets: DictConfig, loaders: DictConfig, transforms: DictConfig
     ) -> None:
-        super().__init__()
-        self.cfg_datasets = datasets
-        self.cfg_loaders = loaders
-        self.transforms = TransformsWrapper(transforms)
+        super().__init__(
+            datasets=datasets, loaders=loaders, transforms=transforms
+        )
         self.train_set: Optional[Dict[str, Dataset]] = None
         self.valid_set: Optional[Dict[str, Dataset]] = None
         self.test_set: Optional[Dict[str, Dataset]] = None
-
-    def _get_dataset_(self, dataset_name: str, split_name: str) -> Dataset:
-        self.transforms.set_stage(split_name)
-        dataset: Dataset = hydra.utils.instantiate(
-            self.cfg_datasets.get(dataset_name).get(split_name),
-            transforms=self.transforms,
-        )
-        return dataset
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Load data. Set variables: `self.train_set`, `self.valid_set`,
@@ -123,27 +123,20 @@ class MultipleDataModule(LightningDataModule):
         # load and split datasets only if not loaded already
         if not self.train_set and not self.valid_set and not self.test_set:
             self.train_set = OrderedDict()
-            for dataset_name in self.cfg_datasets.keys():
-                dataset = self._get_dataset_(dataset_name, "train")
-                self.train_set[dataset_name] = dataset
+            for dataset_name in self.cfg_datasets.get("train").keys():
+                self.train_set[dataset_name] = self._get_dataset_(
+                    "train", dataset_name=dataset_name
+                )
             self.valid_set = OrderedDict()
-            for dataset_name in self.cfg_datasets.keys():
-                dataset = self._get_dataset_(dataset_name, "valid")
-                self.valid_set[dataset_name] = dataset
+            for dataset_name in self.cfg_datasets.get("valid").keys():
+                self.valid_set[dataset_name] = self._get_dataset_(
+                    "valid", dataset_name=dataset_name
+                )
             self.test_set = OrderedDict()
-            for dataset_name in self.cfg_datasets.keys():
-                dataset = self._get_dataset_(dataset_name, "test")
-                self.test_set[dataset_name] = dataset
-
-    def get_weights(self, dataset_name: str, split_name: str) -> torch.Tensor:
-        dataset: Any = self._get_dataset_(dataset_name, split_name)
-        assert hasattr(
-            dataset, "get_labels"
-        ), "Dataset should have get_labels method"
-        label_list = dataset.get_labels()
-        counts = np.bincount(label_list)
-        weights = torch.from_numpy(1.0 / counts).float()
-        return weights
+            for dataset_name in self.cfg_datasets.get("test").keys():
+                self.test_set[dataset_name] = self._get_dataset_(
+                    "test", dataset_name=dataset_name
+                )
 
     def train_dataloader(
         self,

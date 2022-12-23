@@ -12,7 +12,9 @@ class MNISTDataModule(SingleDataModule):
     def __init__(
         self, datasets: DictConfig, loaders: DictConfig, transforms: DictConfig
     ) -> None:
-        super().__init__(datasets, loaders, transforms)
+        super().__init__(
+            datasets=datasets, loaders=loaders, transforms=transforms
+        )
 
     @property
     def num_classes(self) -> int:

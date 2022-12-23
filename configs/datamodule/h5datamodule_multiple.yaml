@@ -6,34 +6,32 @@ defaults:
   - transforms: transforms.yaml
 
 datasets:
-  label1:
-    train:
+  train:
+    label1:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/train/label1_data.json
       data_path: ${paths.data_dir}/train/label1_data.h5
-
-    valid:
-      _target_: src.datamodules.datasets.ClassificationDataset
-      json_path: ${paths.data_dir}/valid/label1_data.json
-      data_path: ${paths.data_dir}/valid/label1_data.h5
-
-    test:
-      _target_: src.datamodules.datasets.ClassificationDataset
-      json_path: ${paths.data_dir}/test/label1_data.json
-      data_path: ${paths.data_dir}/test/label1_data.h5
-
-  label2:
-    train:
+    label2:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/train/label2_data.json
       data_path: ${paths.data_dir}/train/label2_data.h5
 
-    valid:
+  valid:
+    label1:
+      _target_: src.datamodules.datasets.ClassificationDataset
+      json_path: ${paths.data_dir}/valid/label1_data.json
+      data_path: ${paths.data_dir}/valid/label1_data.h5
+    label2:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/valid/label2_data.json
       data_path: ${paths.data_dir}/valid/label2_data.h5
 
-    test:
+  test:
+    label1:
+      _target_: src.datamodules.datasets.ClassificationDataset
+      json_path: ${paths.data_dir}/test/label1_data.json
+      data_path: ${paths.data_dir}/test/label1_data.h5
+    label2:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/test/label2_data.json
       data_path: ${paths.data_dir}/test/label2_data.h5
