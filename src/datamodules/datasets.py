@@ -71,8 +71,7 @@ class ClassificationDataset(BaseDataset):
             source = data_file[key]
         image = self._read_image_(source)
         image = self._process_image_(image)
-        label = self.annotation[key]
-        label = torch.tensor(label).long() if label else None
+        label = torch.tensor(self.annotation[key]).long()
         return {"image": image.float(), "label": label}
 
     def get_labels(self) -> List[Any]:
@@ -96,12 +95,11 @@ class ClassificationVicRegDataset(ClassificationDataset):
         # albumentations returns random augmentation on each __call__
         z1 = self._process_image_(image1)
         z2 = self._process_image_(image2)
-        label = self.annotation[key]
-        label = torch.tensor(label).long() if label else None
+        label = torch.tensor(self.annotation[key]).long()
         return {"z1": z1.float(), "z2": z2.float(), "label": label}
 
 
-class OnlyImagesDataset(BaseDataset):
+class NoLabelsDataset(BaseDataset):
     def __init__(
         self,
         image_paths: Optional[str] = None,
@@ -131,7 +129,7 @@ class OnlyImagesDataset(BaseDataset):
         path = self.dirname / Path(self.keys[index])
         image = self._read_image_(path)
         image = self._process_image_(image)
-        return {"image": image, "path": str(path), "label": None}
+        return {"image": image}
 
     def __len__(self) -> int:
         return len(self.keys)
