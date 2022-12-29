@@ -14,6 +14,7 @@ from sklearn.metrics import (
 def accuracy(
     targets: List[int], preds: List[int], verbose: bool = True
 ) -> float:
+    """Calculate Accuracy by classes."""
     acc = accuracy_score(targets, preds)
     if verbose:
         print(f"Full: accuracy={acc:.5f}")
