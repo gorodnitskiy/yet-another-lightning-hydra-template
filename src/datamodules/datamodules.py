@@ -27,6 +27,8 @@ class SingleDataModule(LightningDataModule):
             # return validation dataloader
         def test_dataloader(self):
             # return test dataloader
+        def predict_dataloader(self):
+            # return predict dataloader
         def teardown(self):
             # called on every process in DDP
             # clean up after fit or test
@@ -48,6 +50,7 @@ class SingleDataModule(LightningDataModule):
         self.train_set: Optional[Dataset] = None
         self.valid_set: Optional[Dataset] = None
         self.test_set: Optional[Dataset] = None
+        self.predict_set: Dict[str, Dataset] = OrderedDict()
 
     def _get_dataset_(
         self, split_name: str, dataset_name: Optional[str] = None
@@ -63,7 +66,7 @@ class SingleDataModule(LightningDataModule):
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Load data. Set variables: `self.train_set`, `self.valid_set`,
-        `self.test_set`.
+        `self.test_set`, `self.predict_set`.
 
         This method is called by lightning with both `trainer.fit()` and
         `trainer.test()`, so be careful not to execute things like random split
@@ -74,6 +77,12 @@ class SingleDataModule(LightningDataModule):
             self.train_set = self._get_dataset_("train")
             self.valid_set = self._get_dataset_("valid")
             self.test_set = self._get_dataset_("test")
+        # load predict datasets only if it exists in config
+        if (stage == "predict") and self.cfg_datasets.get("predict"):
+            for dataset_name in self.cfg_datasets.get("predict").keys():
+                self.predict_set[dataset_name] = self._get_dataset_(
+                    "predict", dataset_name=dataset_name
+                )
 
     def get_weights(
         self, split_name: str, dataset_name: Optional[str] = None
@@ -100,6 +109,18 @@ class SingleDataModule(LightningDataModule):
     def test_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
         return DataLoader(self.test_set, **self.cfg_loaders.get("test"))
 
+    def predict_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
+        loaders = []
+        for _, dataset in self.predict_set.items():
+            loaders.append(
+                DataLoader(dataset, **self.cfg_loaders.get("predict"))
+            )
+        return loaders
+
+    def teardown(self, stage: Optional[str] = None):
+        """Clean up after fit or test."""
+        pass
+
 
 class MultipleDataModule(SingleDataModule):
     def __init__(
@@ -111,10 +132,11 @@ class MultipleDataModule(SingleDataModule):
         self.train_set: Optional[Dict[str, Dataset]] = None
         self.valid_set: Optional[Dict[str, Dataset]] = None
         self.test_set: Optional[Dict[str, Dataset]] = None
+        self.predict_set: Dict[str, Dataset] = OrderedDict()
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Load data. Set variables: `self.train_set`, `self.valid_set`,
-        `self.test_set`.
+        `self.test_set`, `self.predict_set`.
 
         This method is called by lightning with both `trainer.fit()` and
         `trainer.test()`, so be careful not to execute things like random split
@@ -136,6 +158,12 @@ class MultipleDataModule(SingleDataModule):
             for dataset_name in self.cfg_datasets.get("test").keys():
                 self.test_set[dataset_name] = self._get_dataset_(
                     "test", dataset_name=dataset_name
+                )
+        # load predict datasets only if it exists in config
+        if (stage == "predict") and self.cfg_datasets.get("predict"):
+            for dataset_name in self.cfg_datasets.get("predict").keys():
+                self.predict_set[dataset_name] = self._get_dataset_(
+                    "predict", dataset_name=dataset_name
                 )
 
     def train_dataloader(
@@ -160,4 +188,12 @@ class MultipleDataModule(SingleDataModule):
         loaders = []
         for _, dataset in self.test_set.items():
             loaders.append(DataLoader(dataset, **self.cfg_loaders.get("test")))
+        return loaders
+
+    def predict_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
+        loaders = []
+        for _, dataset in self.predict_set.items():
+            loaders.append(
+                DataLoader(dataset, **self.cfg_loaders.get("predict"))
+            )
         return loaders

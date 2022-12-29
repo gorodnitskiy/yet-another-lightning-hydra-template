@@ -50,10 +50,9 @@ class MNISTDataModule(SingleDataModule):
                 lengths=self.cfg_datasets.get("train_val_test_split"),
                 generator=torch.Generator().manual_seed(seed),
             )
-
-    def teardown(self, stage: Optional[str] = None):
-        """Clean up after fit or test."""
-        pass
+        # load predict dataset only if test set existed already
+        if (stage == "predict") and self.test_set:
+            self.predict_set = {"PredictDataset": self.test_set}
 
     def state_dict(self):
         """Extra things to save to checkpoint."""

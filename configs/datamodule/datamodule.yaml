@@ -17,3 +17,11 @@ datasets:
   test:
     _target_: src.datamodules.datasets.ClassificationDataset
     lst_path: ${paths.data_dir}/test/data.lst
+
+  predict:
+    dataset1:
+      _target_: src.datamodules.datasets.ClassificationDataset
+      lst_path: ${paths.data_dir}/predict/data1.lst
+    dataset2:
+      _target_: src.datamodules.datasets.ClassificationDataset
+      lst_path: ${paths.data_dir}/predict/data2.lst

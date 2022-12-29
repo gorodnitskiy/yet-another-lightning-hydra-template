@@ -43,3 +43,10 @@ loaders:
     num_workers: 0
     drop_last: False
     pin_memory: False
+
+  predict:
+    batch_size: 128
+    shuffle: False
+    num_workers: 0
+    drop_last: False
+    pin_memory: False

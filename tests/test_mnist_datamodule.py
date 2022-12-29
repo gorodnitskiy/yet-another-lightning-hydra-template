@@ -21,6 +21,7 @@ def test_mnist_datamodule(batch_size: int, cfg_train: DictConfig):
     assert not datamodule.train_set
     assert not datamodule.valid_set
     assert not datamodule.test_set
+    assert not datamodule.predict_set
     assert Path(cfg_train.paths.data_dir, "MNIST").exists()
     assert Path(cfg_train.paths.data_dir, "MNIST", "raw").exists()
 
@@ -29,14 +30,21 @@ def test_mnist_datamodule(batch_size: int, cfg_train: DictConfig):
     assert datamodule.valid_set
     assert datamodule.test_set
 
+    datamodule.setup(stage="predict")
+    assert datamodule.predict_set
+
     assert datamodule.train_dataloader()
     assert datamodule.val_dataloader()
     assert datamodule.test_dataloader()
+    assert datamodule.predict_dataloader()
 
     train_samples = len(datamodule.train_set)
     valid_samples = len(datamodule.valid_set)
     test_samples = len(datamodule.test_set)
     assert (train_samples + valid_samples + test_samples) == 70_000
+
+    predict_samples = [len(value) for value in datamodule.predict_set.values()]
+    assert test_samples == sum(predict_samples)
 
     batch = next(iter(datamodule.train_dataloader()))
     x, y = batch

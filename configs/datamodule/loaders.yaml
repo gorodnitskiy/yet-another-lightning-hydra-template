@@ -20,3 +20,10 @@ test:
   num_workers: 8
   drop_last: False
   pin_memory: True
+
+predict:
+  batch_size: 320
+  shuffle: False
+  num_workers: 8
+  drop_last: False
+  pin_memory: True

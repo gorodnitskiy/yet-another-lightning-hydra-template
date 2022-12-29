@@ -119,7 +119,7 @@ def evaluate(cfg: DictConfig) -> Tuple[dict, dict]:
         # TODO: Create saver for predictions
         _ = trainer.predict(
             model=model,
-            dataloaders=datamodule.test_dataloader(),
+            datamodule=datamodule,
             ckpt_path=cfg.ckpt_path,
         )
     else:

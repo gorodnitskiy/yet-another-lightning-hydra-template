@@ -20,3 +20,13 @@ datasets:
     _target_: src.datamodules.datasets.ClassificationDataset
     json_path: ${paths.data_dir}/test/data.json
     data_path: ${paths.data_dir}/test/data.h5
+
+  predict:
+    dataset1:
+      _target_: src.datamodules.datasets.ClassificationDataset
+      json_path: ${paths.data_dir}/predict/data1.json
+      data_path: ${paths.data_dir}/predict/data1.h5
+    dataset2:
+      _target_: src.datamodules.datasets.ClassificationDataset
+      json_path: ${paths.data_dir}/predict/data2.json
+      data_path: ${paths.data_dir}/predict/data2.h5
