@@ -157,6 +157,16 @@ class SingleLitModule(BaseLitModule):
     def test_epoch_end(self, outputs: List[Any]) -> None:
         pass
 
+    def predict_step(
+        self, batch: Any, batch_idx: int, dataloader_idx: int = 0
+    ) -> Any:
+        logits = self.forward(batch["image"])
+        preds = torch.softmax(logits, dim=1)
+        outputs = {"logits": logits, "preds": preds}
+        if "label" in batch:
+            outputs.update({"targets": batch["label"]})
+        return outputs
+
 
 class MNISTLitModule(SingleLitModule):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -168,6 +178,14 @@ class MNISTLitModule(SingleLitModule):
         loss = self.loss(logits, y)
         preds = torch.softmax(logits, dim=1)
         return loss, preds, y
+
+    def predict_step(
+        self, batch: Any, batch_idx: int, dataloader_idx: int = 0
+    ) -> Any:
+        x, y = batch
+        logits = self.forward(x["image"])
+        preds = torch.softmax(logits, dim=1)
+        return {"logits": logits, "preds": preds, "targets": y}
 
 
 class SingleVicRegLitModule(BaseLitModule):
@@ -307,3 +325,9 @@ class SingleReIdLitModule(SingleLitModule):
             **self.logging_params,
         )
         return {"loss": loss, "preds": preds, "targets": targets}
+
+    def predict_step(
+        self, batch: Any, batch_idx: int, dataloader_idx: int = 0
+    ) -> Any:
+        embeddings = self.forward(batch["image"])
+        return {"embeddings": embeddings}
