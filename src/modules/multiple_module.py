@@ -15,8 +15,8 @@ class MultipleLitModule(BaseLitModule):
         optimizer: DictConfig,
         scheduler: DictConfig,
         logging: DictConfig,
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             network, optimizer, scheduler, logging, *args, **kwargs
@@ -39,10 +39,10 @@ class MultipleLitModule(BaseLitModule):
         self.parts = network.parts
         self.save_hyperparameters(logger=False)
 
-    def on_train_start(self):
+    def on_train_start(self) -> None:
         self.total_valid_metric_best.reset()
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: Any, batch_idx: int) -> Any:
         loss = None
         outputs = {"preds": {}, "targets": {}}
         for idx, part in enumerate(self.parts):
@@ -86,10 +86,12 @@ class MultipleLitModule(BaseLitModule):
         outputs["loss"] = loss
         return outputs
 
-    def training_epoch_end(self, outputs: List[Any]):
+    def training_epoch_end(self, outputs: List[Any]) -> None:
         pass
 
-    def validation_step(self, batch, batch_idx, dataloader_idx):
+    def validation_step(
+        self, batch: Any, batch_idx: int, dataloader_idx: int = 0
+    ) -> Any:
         part = self.parts[dataloader_idx]
         logits = self.forward(batch["image"])[dataloader_idx]
         preds = torch.softmax(logits, dim=1)
@@ -120,7 +122,7 @@ class MultipleLitModule(BaseLitModule):
         self.total_valid_metric.update(preds, targets)
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def validation_epoch_end(self, outputs: List[Any]):
+    def validation_epoch_end(self, outputs: List[Any]) -> None:
         total_valid_metric = self.total_valid_metric.compute()
         self.total_valid_metric_best(total_valid_metric)
         self.log(
@@ -130,7 +132,9 @@ class MultipleLitModule(BaseLitModule):
         )
         self.total_valid_metric.reset()
 
-    def test_step(self, batch, batch_idx, dataloader_idx):
+    def test_step(
+        self, batch: Any, batch_idx: int, dataloader_idx: int = 0
+    ) -> Any:
         part = self.parts[dataloader_idx]
         logits = self.forward(batch["image"])[dataloader_idx]
         preds = torch.softmax(logits, dim=1)
@@ -160,5 +164,5 @@ class MultipleLitModule(BaseLitModule):
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def test_epoch_end(self, outputs: List[Any]):
+    def test_epoch_end(self, outputs: List[Any]) -> None:
         pass

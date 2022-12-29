@@ -30,8 +30,8 @@ class SingleLitModule(BaseLitModule):
         optimizer: DictConfig,
         scheduler: DictConfig,
         logging: DictConfig,
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             network, optimizer, scheduler, logging, *args, **kwargs
@@ -50,19 +50,19 @@ class SingleLitModule(BaseLitModule):
         )
         self.save_hyperparameters(logger=False)
 
-    def model_step(self, batch, *args, **kwargs):
+    def model_step(self, batch: Any, *args: Any, **kwargs: Any) -> Any:
         logits = self.forward(batch["image"])
         loss = self.loss(logits, batch["label"])
         preds = torch.softmax(logits, dim=1)
         return loss, preds, batch["label"]
 
-    def on_train_start(self):
+    def on_train_start(self) -> None:
         # by default lightning executes validation step sanity checks before
         # training starts, so we need to make sure valid_metric_best doesn't store
         # accuracy from these checks
         self.valid_metric_best.reset()
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: Any, batch_idx: int) -> Any:
         loss, preds, targets = self.model_step(batch, batch_idx)
         self.log(
             f"{self.loss.__class__.__name__}/train",
@@ -86,7 +86,7 @@ class SingleLitModule(BaseLitModule):
             )
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def training_epoch_end(self, outputs: List[Any]):
+    def training_epoch_end(self, outputs: List[Any]) -> None:
         # `outputs` is a list of dicts returned from `training_step()`
 
         # Warning: when overriding `training_epoch_end()`, lightning
@@ -96,7 +96,7 @@ class SingleLitModule(BaseLitModule):
         # or using `on_train_epoch_end()` instead which doesn't accumulate outputs
         pass
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch: Any, batch_idx: int) -> Any:
         loss, preds, targets = self.model_step(batch, batch_idx)
         self.log(
             f"{self.loss.__class__.__name__}/valid",
@@ -120,7 +120,7 @@ class SingleLitModule(BaseLitModule):
             )
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def validation_epoch_end(self, outputs: List[Any]):
+    def validation_epoch_end(self, outputs: List[Any]) -> None:
         valid_metric = self.valid_metric.compute()  # get current valid metric
         self.valid_metric_best(valid_metric)  # update best so far valid metric
         # log `valid_metric_best` as a value through `.compute()` method, instead
@@ -132,7 +132,7 @@ class SingleLitModule(BaseLitModule):
             **self.logging_params,
         )
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch: Any, batch_idx: int) -> Any:
         loss, preds, targets = self.model_step(batch, batch_idx)
         self.log(
             f"{self.loss.__class__.__name__}/test", loss, **self.logging_params
@@ -154,15 +154,15 @@ class SingleLitModule(BaseLitModule):
             )
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def test_epoch_end(self, outputs: List[Any]):
+    def test_epoch_end(self, outputs: List[Any]) -> None:
         pass
 
 
 class MNISTLitModule(SingleLitModule):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    def model_step(self, batch, *args, **kwargs):
+    def model_step(self, batch: Any, *args: Any, **kwargs: Any) -> Any:
         x, y = batch
         logits = self.forward(x["image"])
         loss = self.loss(logits, y)
@@ -179,8 +179,8 @@ class SingleVicRegLitModule(BaseLitModule):
         logging: DictConfig,
         proj_hidden_dim: int,
         proj_output_dim: int,
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             network, optimizer, scheduler, logging, *args, **kwargs
@@ -198,20 +198,20 @@ class SingleVicRegLitModule(BaseLitModule):
         )
         self.save_hyperparameters(logger=False)
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         x = self.model.forward(x)
         return self.projector(x)
 
-    def model_step(self, batch, *args, **kwargs):
+    def model_step(self, batch: Any, *args: Any, **kwargs: Any) -> Any:
         z1 = self.forward(batch["z1"])
         z2 = self.forward(batch["z2"])
         loss = self.loss(z1, z2)
         return loss
 
-    def on_train_start(self):
+    def on_train_start(self) -> None:
         self.valid_metric_best.reset()
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: Any, batch_idx: int) -> Any:
         loss = self.model_step(batch, batch_idx)
         self.log(
             f"{self.loss.__class__.__name__}/train",
@@ -220,10 +220,10 @@ class SingleVicRegLitModule(BaseLitModule):
         )
         return {"loss": loss}
 
-    def training_epoch_end(self, outputs: List[Any]):
+    def training_epoch_end(self, outputs: List[Any]) -> None:
         pass
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch: Any, batch_idx: int) -> Any:
         loss = self.model_step(batch, batch_idx)
         self.log(
             f"{self.loss.__class__.__name__}/valid",
@@ -232,29 +232,29 @@ class SingleVicRegLitModule(BaseLitModule):
         )
         return {"loss": loss}
 
-    def validation_epoch_end(self, outputs: List[Any]):
+    def validation_epoch_end(self, outputs: List[Any]) -> None:
         pass
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch: Any, batch_idx: int) -> Any:
         loss = self.model_step(batch, batch_idx)
         self.log(
             f"{self.loss.__class__.__name__}/test", loss, **self.logging_params
         )
         return {"loss": loss}
 
-    def test_epoch_end(self, outputs: List[Any]):
+    def test_epoch_end(self, outputs: List[Any]) -> None:
         pass
 
 
 class SingleReIdLitModule(SingleLitModule):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    def model_step(self, batch, *args, **kwargs):
+    def model_step(self, batch: Any, *args: Any, **kwargs: Any) -> Any:
         embeddings = self.forward(batch["image"])
         return embeddings, batch["label"]
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: Any, batch_idx: int) -> Any:
         embeddings, targets = self.model_step(batch, batch_idx)
         loss, logits = self.loss(embeddings, batch["label"])
         preds = torch.softmax(logits, dim=1)
@@ -272,7 +272,7 @@ class SingleReIdLitModule(SingleLitModule):
         )
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch: Any, batch_idx: int) -> Any:
         embeddings, targets = self.model_step(batch, batch_idx)
         with torch.no_grad():
             loss, logits = self.loss(embeddings, batch["label"])
@@ -291,7 +291,7 @@ class SingleReIdLitModule(SingleLitModule):
         )
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch: Any, batch_idx: int) -> Any:
         embeddings, targets = self.model_step(batch, batch_idx)
         with torch.no_grad():
             loss, logits = self.loss(embeddings, batch["label"])

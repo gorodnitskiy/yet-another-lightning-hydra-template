@@ -15,8 +15,8 @@ class BaseLitModule(LightningModule):
         optimizer: DictConfig,
         scheduler: DictConfig,
         logging: DictConfig,
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.model = hydra.utils.instantiate(network.model)
@@ -24,10 +24,10 @@ class BaseLitModule(LightningModule):
         self.slr_params = scheduler
         self.logging_params = logging
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         return self.model.forward(x)
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> Any:
         optimizer: torch.optim = hydra.utils.instantiate(
             self.opt_params, params=self.parameters(), _convert_="partial"
         )
