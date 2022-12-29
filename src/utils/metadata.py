@@ -16,7 +16,7 @@ def run(cmd, allow_fail=True, no_env=True):
             cmd,
             stderr=STDOUT,
             text=True,
-            shell=False,
+            shell=True,  # nosec B604
             env={} if no_env else None,
         )
     except SubprocessError as exception:
