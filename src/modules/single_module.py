@@ -165,6 +165,8 @@ class SingleLitModule(BaseLitModule):
         outputs = {"logits": logits, "preds": preds}
         if "label" in batch:
             outputs.update({"targets": batch["label"]})
+        if "name" in batch:
+            outputs.update({"names": batch["name"]})
         return outputs
 
 
@@ -329,5 +331,7 @@ class SingleReIdLitModule(SingleLitModule):
     def predict_step(
         self, batch: Any, batch_idx: int, dataloader_idx: int = 0
     ) -> Any:
-        embeddings = self.forward(batch["image"])
-        return {"embeddings": embeddings}
+        outputs = {"embeddings": self.forward(batch["image"])}
+        if "name" in batch:
+            outputs.update({"names": batch["name"]})
+        return outputs
