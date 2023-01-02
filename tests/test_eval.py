@@ -23,13 +23,18 @@ def test_train_eval(tmp_path, cfg_train, cfg_eval):
     HydraConfig().set_config(cfg_train)
     train_metric_dict, _ = train(cfg_train)
 
-    assert "last.ckpt" in os.listdir(tmp_path / "checkpoints")
     files = os.listdir(tmp_path)
-    assert "pip_metadata.txt" in files
-    assert "git_metadata.txt" in files
-    assert "gpu_metadata.txt" in files
     assert "last_ckpt.pth" in files
     assert any(["best_ckpt" in str(file) for file in files])
+
+    assert "last.ckpt" in os.listdir(tmp_path / "checkpoints")
+
+    files = os.listdir(tmp_path / "metadata")
+    assert "pip.log" in files
+    assert "git.log" in files
+    assert "gpu.log" in files
+    assert "src" in files
+    assert "configs" in files
 
     # evaluate
     with open_dict(cfg_eval):

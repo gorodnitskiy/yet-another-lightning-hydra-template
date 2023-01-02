@@ -5,6 +5,7 @@ from subprocess import (  # nosec B404, B603
     SubprocessError,
     check_output,
 )
+from typing import Optional
 
 from omegaconf import DictConfig
 
@@ -27,9 +28,9 @@ def run(cmd, allow_fail=True, no_env=True):
     return f"> {cmd}\n\n{output}\n"
 
 
-def pip_metadata(path: Path) -> None:
+def log_pip_metadata(path: Path) -> None:
     """Collect pip metadata."""
-    (path / "pip_metadata.txt").write_text(
+    (path / "pip.log").write_text(
         "\n".join(
             [
                 run("pip freeze --disable-pip-version-check"),
@@ -39,9 +40,9 @@ def pip_metadata(path: Path) -> None:
     )
 
 
-def git_metadata(path: Path) -> None:
+def log_git_metadata(path: Path) -> None:
     """Collect git metadata."""
-    (path / "git_metadata.txt").write_text(
+    (path / "git.log").write_text(
         "\n".join(
             [
                 run("git describe --tags --long --dirty --always"),
@@ -54,9 +55,9 @@ def git_metadata(path: Path) -> None:
     )
 
 
-def gpu_metadata(path: Path) -> None:
+def log_gpu_metadata(path: Path) -> None:
     """Collect GPU metadata."""
-    (path / "gpu_metadata.txt").write_text(
+    (path / "gpu.log").write_text(
         "\n".join(
             [
                 run("env | grep -E '(NV|CU)' | sort", no_env=False),
@@ -66,30 +67,30 @@ def gpu_metadata(path: Path) -> None:
     )
 
 
-def save_code_as_artifact(cfg: DictConfig) -> None:
-    """Save code and configs folders as artifacts."""
+def log_metadata(cfg: DictConfig) -> None:
+    """Log pip, git and GPU metadata.
+
+    Save code and configs folders as artifacts.
+    """
+    target_path = Path(cfg.paths.output_dir) / "metadata"
+    target_path.mkdir(parents=True, exist_ok=True)
+
+    # Logging pip, git and GPU metadata
+    log_pip_metadata(target_path)
+    log_git_metadata(target_path)
+    log_gpu_metadata(target_path)
+
+    # Saving code and configs folders
     script_path = Path(cfg.paths.root_dir) / "src"
     if not script_path.is_dir():
         raise RuntimeError("Couldn't find the src folder.")
-    target_path = Path(cfg.paths.output_dir) / "src"
-    if not target_path.exists():
-        copytree(script_path, target_path)
+    target_src_path = target_path / "src"
+    if not target_src_path.exists():
+        copytree(script_path, target_src_path)
 
     configs_path = Path(cfg.paths.root_dir) / "configs"
     if not configs_path.is_dir():
         raise RuntimeError("Couldn't find the configs folder.")
-    target_path = Path(cfg.paths.output_dir) / "configs"
-    if not target_path.exists():
-        copytree(configs_path, target_path)
-
-
-def log_metadata(cfg: DictConfig) -> None:
-    """Logging pip, git and GPU metadata.
-
-    Save code and configs folders.
-    """
-    path = Path(cfg.paths.output_dir)
-    pip_metadata(path)
-    git_metadata(path)
-    gpu_metadata(path)
-    save_code_as_artifact(cfg)
+    target_configs_path = target_path / "configs"
+    if not target_configs_path.exists():
+        copytree(configs_path, target_configs_path)
