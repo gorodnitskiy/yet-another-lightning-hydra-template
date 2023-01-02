@@ -72,7 +72,7 @@ class ClassificationDataset(BaseDataset):
         image = self._read_image_(source)
         image = self._process_image_(image)
         label = torch.tensor(self.annotation[key]).long()
-        return {"image": image.float(), "label": label}
+        return {"image": image.float(), "label": label, "name": key}
 
     def get_labels(self) -> List[Any]:
         return [self.annotation[key] for key in self.keys]
@@ -96,7 +96,12 @@ class ClassificationVicRegDataset(ClassificationDataset):
         z1 = self._process_image_(image1)
         z2 = self._process_image_(image2)
         label = torch.tensor(self.annotation[key]).long()
-        return {"z1": z1.float(), "z2": z2.float(), "label": label}
+        return {
+            "z1": z1.float(),
+            "z2": z2.float(),
+            "label": label,
+            "name": key,
+        }
 
 
 class NoLabelsDataset(BaseDataset):
@@ -126,10 +131,11 @@ class NoLabelsDataset(BaseDataset):
         self.dirname = Path(dirname if dirname else "")
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
-        path = self.dirname / Path(self.keys[index])
+        key = self.keys[index]
+        path = self.dirname / Path(key)
         image = self._read_image_(path)
         image = self._process_image_(image)
-        return {"image": image}
+        return {"image": image, "name": key}
 
     def __len__(self) -> int:
         return len(self.keys)
