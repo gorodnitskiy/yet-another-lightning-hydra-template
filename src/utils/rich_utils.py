@@ -19,7 +19,7 @@ def print_config_tree(
     cfg: DictConfig,
     print_order: Sequence[str] = (
         "datamodule",
-        "model",
+        "module",
         "callbacks",
         "logger",
         "trainer",
