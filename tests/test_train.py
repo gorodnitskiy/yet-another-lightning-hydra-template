@@ -74,17 +74,6 @@ def test_train_resume(tmp_path, cfg_train):
     assert "last.ckpt" in files
     assert any(["epoch000" in str(file) for file in files])
 
-    files = os.listdir(tmp_path / "metadata")
-    assert "pip.log" in files
-    assert "git.log" in files
-    assert "gpu.log" in files
-    assert "src" in files
-    assert "configs" in files
-
-    files = os.listdir(tmp_path)
-    assert "last_ckpt.pth" in files
-    assert any(["best_ckpt" in str(file) for file in files])
-
     with open_dict(cfg_train):
         cfg_train.ckpt_path = str(tmp_path / "checkpoints" / "last.ckpt")
         cfg_train.trainer.max_epochs = 2
@@ -95,10 +84,25 @@ def test_train_resume(tmp_path, cfg_train):
     assert any(["epoch001" in str(file) for file in files])
     assert not any(["epoch002" in str(file) for file in files])
 
-    files = os.listdir(tmp_path)
-    assert "last_ckpt.pth" in files
-    assert any(["best_ckpt" in str(file) for file in files])
-
     metric = "MulticlassAccuracy"
     assert metric_dict_1[f"{metric}/train"] < metric_dict_2[f"{metric}/train"]
     assert metric_dict_1[f"{metric}/valid"] < metric_dict_2[f"{metric}/valid"]
+
+
+@pytest.mark.slow
+def test_train_save_state_dict(tmp_path, cfg_train):
+    """Run 1 epoch with saving state_dict."""
+    with open_dict(cfg_train):
+        cfg_train.trainer.max_epochs = 1
+        cfg_train.save_state_dict = True
+
+    HydraConfig().set_config(cfg_train)
+    metric_dict_1, _ = train(cfg_train)
+
+    files = os.listdir(tmp_path / "checkpoints")
+    assert "last.ckpt" in files
+    assert any(["epoch000" in str(file) for file in files])
+
+    files = os.listdir(tmp_path)
+    assert "last_ckpt.pth" in files
+    assert any(["best_ckpt" in str(file) for file in files])

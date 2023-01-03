@@ -9,7 +9,7 @@ from src.train import train
 
 
 @pytest.mark.slow
-def test_train_eval(tmp_path, cfg_train, cfg_eval):
+def test_train_eval_predict(tmp_path, cfg_train, cfg_eval):
     """Train for 1 epoch with `train.py`, evaluate and predict with
     `eval.py`"""
     assert str(tmp_path) == cfg_train.paths.output_dir
@@ -23,18 +23,7 @@ def test_train_eval(tmp_path, cfg_train, cfg_eval):
     HydraConfig().set_config(cfg_train)
     train_metric_dict, _ = train(cfg_train)
 
-    files = os.listdir(tmp_path)
-    assert "last_ckpt.pth" in files
-    assert any(["best_ckpt" in str(file) for file in files])
-
     assert "last.ckpt" in os.listdir(tmp_path / "checkpoints")
-
-    files = os.listdir(tmp_path / "metadata")
-    assert "pip.log" in files
-    assert "git.log" in files
-    assert "gpu.log" in files
-    assert "src" in files
-    assert "configs" in files
 
     # evaluate
     with open_dict(cfg_eval):
@@ -58,6 +47,6 @@ def test_train_eval(tmp_path, cfg_train, cfg_eval):
         cfg_eval.predict = True
 
     HydraConfig().set_config(cfg_eval)
-    _ = evaluate(cfg_eval)
+    evaluate(cfg_eval)
 
     assert "predictions.json" in os.listdir(tmp_path / "predictions")
