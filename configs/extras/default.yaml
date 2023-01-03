@@ -14,3 +14,7 @@ plugins: null
 state_dict_saving_params:
   symbols: 6
   exceptions: ["loss"]
+
+# predictions
+predictions_saving_params:
+  output_format: "json"

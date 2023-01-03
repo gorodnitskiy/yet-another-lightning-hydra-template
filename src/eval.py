@@ -116,12 +116,17 @@ def evaluate(cfg: DictConfig) -> Tuple[dict, dict]:
 
     if cfg.get("predict"):
         log.info("Starting predicting!")
-        # TODO: Create saver for predictions
-        _ = trainer.predict(
+        predictions = trainer.predict(
             model=model,
             datamodule=datamodule,
             ckpt_path=cfg.ckpt_path,
         )
+        utils.save_predictions(
+            predictions=predictions,
+            dirname=cfg.paths.output_dir,
+            **cfg.extras.predictions_saving_params,
+        )
+
     else:
         log.info("Starting testing!")
         trainer.test(

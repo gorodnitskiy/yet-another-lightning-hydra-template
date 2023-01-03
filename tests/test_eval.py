@@ -59,4 +59,5 @@ def test_train_eval(tmp_path, cfg_train, cfg_eval):
 
     HydraConfig().set_config(cfg_eval)
     _ = evaluate(cfg_eval)
-    # TODO: check that predictions were saved
+
+    assert "predictions.json" in os.listdir(tmp_path / "predictions")
