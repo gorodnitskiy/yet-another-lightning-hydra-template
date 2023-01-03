@@ -1,4 +1,4 @@
-from src.utils.environment import (
+from src.utils.env_utils import (
     collect_random_states,
     get_gpu_memory_info,
     set_max_threads,
