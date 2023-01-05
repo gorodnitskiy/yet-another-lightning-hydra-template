@@ -5,7 +5,6 @@ from subprocess import (  # nosec B404, B603
     SubprocessError,
     check_output,
 )
-from typing import Optional
 
 from omegaconf import DictConfig
 
@@ -68,10 +67,13 @@ def log_gpu_metadata(path: Path) -> None:
 
 
 def log_metadata(cfg: DictConfig) -> None:
-    """Log pip, git and GPU metadata.
+    """Log pip, git and GPU metadata. Save code and configs folders as
+    artifacts.
 
-    Save code and configs folders as artifacts.
+    Args:
+        cfg (DictConfig): Main config.
     """
+
     target_path = Path(cfg.paths.output_dir) / "metadata"
     target_path.mkdir(parents=True, exist_ok=True)
 

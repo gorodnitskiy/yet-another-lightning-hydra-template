@@ -45,8 +45,9 @@ def set_seed(
     Args:
         seed (int): Seed. Default to 42.
         deterministic (bool): deterministic mode. Default to True.
-        deterministic (bool): benchmark mode. Default to False.
+        benchmark (bool): benchmark mode. Default to False.
     """
+
     random.seed(seed)
     np.random.seed(seed)
     torch.random.manual_seed(seed)
@@ -72,6 +73,7 @@ def set_max_threads(max_threads: int = 32) -> None:
     Args:
         max_threads (int): Max threads value. Default to 32.
     """
+
     os.environ["OMP_NUM_THREADS"] = str(max_threads)
     os.environ["OPENBLAS_NUM_THREADS"] = str(max_threads)
     os.environ["MKL_NUM_THREADS"] = str(max_threads)
@@ -80,7 +82,12 @@ def set_max_threads(max_threads: int = 32) -> None:
 
 
 def collect_random_states() -> Dict[str, Any]:
-    """Collect random states: random, numpy, torch, torch.cuda."""
+    """Collect random states: random, numpy, torch, torch.cuda.
+
+    Returns:
+        dict: Dict with random states.
+    """
+
     return {
         "python": random.getstate(),
         "numpy": np.random.get_state(),
