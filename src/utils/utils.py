@@ -28,6 +28,12 @@ def task_wrapper(task_func: Callable) -> Callable:
     - Calling the `utils.close_loggers()` after the task is finished or failed
     - Logging the exception if occurs
     - Logging the output dir
+
+    Args:
+        task_func (Callable): Task function.
+
+    Returns:
+        Callable: Decorator that wraps the task function in extra utilities.
     """
 
     def wrap(cfg: DictConfig):
@@ -71,6 +77,9 @@ def extras(cfg: DictConfig) -> None:
     - Ignoring python warnings
     - Setting tags from command line
     - Rich config printing
+
+    Args:
+        cfg (DictConfig): Main config.
     """
 
     # return if no `extras` config
@@ -99,7 +108,15 @@ def extras(cfg: DictConfig) -> None:
 
 
 def instantiate_callbacks(callbacks_cfg: DictConfig) -> List[Callback]:
-    """Instantiates callbacks from config."""
+    """Instantiates callbacks from config.
+
+    Args:
+        callbacks_cfg (DictConfig): Callbacks config.
+
+    Returns:
+        List[Callback]: List with all instantiated callbacks.
+    """
+
     callbacks: List[Callback] = []
 
     if not callbacks_cfg:
@@ -118,7 +135,15 @@ def instantiate_callbacks(callbacks_cfg: DictConfig) -> List[Callback]:
 
 
 def instantiate_loggers(logger_cfg: DictConfig) -> List[LightningLoggerBase]:
-    """Instantiates loggers from config."""
+    """Instantiates loggers from config.
+
+    Args:
+        logger_cfg (DictConfig): Loggers config.
+
+    Returns:
+        List[LightningLoggerBase]: List with all instantiated loggers.
+    """
+
     logger: List[LightningLoggerBase] = []
 
     if not logger_cfg:
@@ -142,6 +167,9 @@ def log_hyperparameters(object_dict: dict) -> None:
 
     Saves additionally:
     - Number of model parameters
+
+    Args:
+        object_dict (dict): Dict object with all parameters.
     """
 
     hparams = {}
@@ -182,7 +210,15 @@ def log_hyperparameters(object_dict: dict) -> None:
 
 
 def get_metric_value(metric_dict: dict, metric_name: str) -> Optional[float]:
-    """Safely retrieves value of the metric logged in LightningModule."""
+    """Safely retrieves value of the metric logged in LightningModule.
+
+    Args:
+        metric_dict (dict): Dict with metric values.
+        metric_name (str): Metric name.
+
+    Returns:
+        Optional[float]: Metric value.
+    """
 
     if not metric_name:
         log.info("Metric name is None! Skipping metric value retrieval...")
@@ -217,33 +253,37 @@ def close_loggers() -> None:
 
 @rank_zero_only
 def save_file(path: str, content: str) -> None:
-    """Save file in rank zero mode (only on one process in multi-GPU setup)."""
+    """Save file in rank zero mode (only on one process in multi-GPU setup).
+
+    Args:
+        path (str): File path.
+        content (str): File content.
+    """
+
     with open(path, "w+") as file:
         file.write(content)
 
 
-def instantiate_plugins(cfg: DictConfig) -> Optional[List[Any]]:
-    """Instantiates lightning plugins from config."""
-    if not cfg.extras.get("plugins"):
-        log.warning("No plugins configs found! Skipping...")
-        return
+def instantiate_plugins(cfg: DictConfig) -> List[Any]:
+    """Instantiates lightning plugins from config.
 
-    if (cfg.trainer.get("accelerator") == "cpu") or not cfg.trainer.get(
-        "devices"
-    ):
-        log.warning(
-            "Using CPU as accelerator or no devices found! Skipping..."
-        )
-        return
+    Args:
+        cfg (DictConfig): Config.
 
-    devices = cfg.trainer.get("devices")
-    if (isinstance(devices, int) and (devices in (0, 1))) or (
-        isinstance(devices, (list, tuple)) and len(devices) == 1
-    ):
-        log.warning("Using only 1 device! Skipping...")
-        return
+    Returns:
+        List[Any]: List with all instantiated plugins.
+    """
 
     plugins: List[Any] = []
+
+    if not cfg.extras.get("plugins"):
+        log.warning("No plugins configs found! Skipping...")
+        return plugins
+
+    if cfg.trainer.get("accelerator") == "cpu":
+        log.warning("Using CPU as accelerator! Skipping...")
+        return plugins
+
     for _, pl_conf in cfg.extras.get("plugins").items():
         if isinstance(pl_conf, DictConfig) and "_target_" in pl_conf:
             log.info(f"Instantiating plugin <{pl_conf._target_}>")
@@ -255,16 +295,26 @@ def instantiate_plugins(cfg: DictConfig) -> Optional[List[Any]]:
 def register_custom_resolvers(
     version_base: str, config_path: str, config_name: str
 ) -> Callable:
-    """Decorator to register custom OmegaConf resolvers. It is excepted to call
-    before hydra.main decorator call.
+    """Optional decorator to register custom OmegaConf resolvers. It is
+    excepted to call before `hydra.main` decorator call.
 
     Replace resolver: To avoiding copying of loss and metric names in configs,
     there is custom resolver during hydra initialization which replaces
-    __loss__ to loss.__class__.__name__ and __metric__ to
-    main_metric.__class__.__name__ For example: ${replace:"__metric__/valid"}
+    `__loss__` to `loss.__class__.__name__` and `__metric__` to
+    `main_metric.__class__.__name__` For example: ${replace:"__metric__/valid"}
     Use quotes for defining internal value in ${replace:"..."} to avoid grammar
     problems with hydra config parser.
+
+    Args:
+        version_base (str): Hydra version base.
+        config_path (str): Hydra config path.
+        config_name (str): Hydra config name.
+
+    Returns:
+        Callable: Decorator that registers custom resolvers before running
+            main function.
     """
+
     # register of replace resolver
     if not OmegaConf.has_resolver("replace"):
         with initialize_config_dir(
