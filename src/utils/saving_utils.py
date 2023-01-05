@@ -25,7 +25,11 @@ def process_state_dict(
             beginning of state dict keys. Default to 0.
         exceptions (Union[str, List[str]], optional): Determines exceptions,
             i.e. substrings, which keys should not contain.
+
+    Returns:
+        OrderedDict: Filtered state dict.
     """
+
     new_state_dict = OrderedDict()
     if exceptions:
         if isinstance(exceptions, str):
@@ -61,6 +65,7 @@ def save_state_dicts(
         exceptions (Union[str, List[str]], optional): Determines exceptions,
             i.e. substrings, which keys should not contain.  Default to [loss].
     """
+
     # save state dict for last checkpoint
     mapped_state_dict = process_state_dict(
         model.state_dict(), symbols=symbols, exceptions=exceptions
@@ -101,6 +106,7 @@ def save_predictions_from_dataloader(
         predictions (List[Any]): Predictions returned by `Trainer.predict` method.
         path (Path): Path to predictions.
     """
+
     if path.suffix == ".csv":
         with open(path, "w") as csv_file:
             writer = csv.writer(csv_file)
@@ -146,6 +152,7 @@ def save_predictions(
         output_format (str): Output file format. It could be `json` or `csv`.
             Default to `json`.
     """
+
     if not predictions:
         log.warning("Predictions is empty! Saving was cancelled ...")
         return
