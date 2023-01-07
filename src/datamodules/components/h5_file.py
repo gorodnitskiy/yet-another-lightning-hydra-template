@@ -45,24 +45,35 @@ class H5PyFile:
     for parallel interactions with the dataset. Reading in parallel is safe,
     writing in parallel may be not. Check h5py docs, when in doubt.
 
-    Thanks to Andrei Stoskii for this module which I reworked slightly.
+    Thanks to Andrei Stoskii for this module which I slightly reworked.
     """
 
-    def __init__(self, filename: str, **kwargs) -> None:
-        self.dataset = None
+    def __init__(
+        self, filename: Optional[str] = None, mode: str = "r", **kwargs: Any
+    ) -> None:
+        """Initialize H5PyFile class.
+
+        Args:
+            filename (:obj:`str`, optional): h5py filename. Default to None.
+            mode (str): h5py file operation mode (r, r+, w, w-, x, a). Default to 'r'.
+            **kwargs: Additional arguments for h5py.File class initialization.
+        """
+
         self.filename = filename
+        self.mode = mode
+        self.dataset = None
         self._kwargs = kwargs
 
     def _lazy_load_(self) -> None:
         if self.dataset is not None:
             return
 
+        if not self.filename:
+            raise FileNotFoundError(f"File '{self.filename}' is not found!")
+
         can_use_cache = True
-        if self._kwargs.get("mode", "r") != "r":
+        if self.mode != "r":
             # Non-read mode
-            can_use_cache = False
-        if {k for k in self._kwargs if k != "mode"}:
-            # Non-standard extra kwargs
             can_use_cache = False
 
         # Load dataset (from cache or from disk)
@@ -77,22 +88,22 @@ class H5PyFile:
             _H5PY_FILES_CACHE[self.filename] = dataset
         self.dataset = dataset
 
-    def __getitem__(self, *args, **kwargs) -> Any:
+    def __getitem__(self, *args: Any, **kwargs: Any) -> Any:
         self._lazy_load_()
         return self.dataset.__getitem__(*args, **kwargs)[...]
 
-    def __setitem__(self, *args, **kwargs) -> Any:
+    def __setitem__(self, *args: Any, **kwargs: Any) -> Any:
         self._lazy_load_()
         return self.dataset.__setitem__(*args, **kwargs)
 
-    def __getstate__(self) -> Tuple[str, Dict[str, Any]]:
-        return self.filename, self._kwargs
+    def __getstate__(self) -> Tuple[str, str, Dict[str, Any]]:
+        return self.filename, self.mode, self._kwargs
 
-    def __setstate__(self, state: Tuple[str, Dict[str, Any]]) -> Any:
-        return self.__init__(state[0], **state[1])
+    def __setstate__(self, state: Tuple[str, str, Dict[str, Any]]) -> Any:
+        return self.__init__(state[0], state[1], **state[2])
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(filename='{self.filename}')"
+        return f"{self.__class__.__name__}({self.filename}, {self.mode})"
 
     @classmethod
     def create(
@@ -105,9 +116,9 @@ class H5PyFile:
         """Create h5py file for dataset from scratch.
 
         Args:
-            filename (str): Name for h5py file.
+            filename (str): h5py filename.
             content (List[str]): Dataset content. Requires List[data filepath].
-            dirname (:obj:`str`, optional): Additional dirname for image filepaths.
+            dirname (:obj:`str`, optional): Additional dirname for data filepaths.
                 Default to None.
             verbose (bool): Verbose option. If True, it would show tqdm progress bar.
                 Default to True.
