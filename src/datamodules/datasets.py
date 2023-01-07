@@ -54,20 +54,11 @@ class ClassificationDataset(BaseDataset):
         return len(self.keys)
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
-        """Do not open h5 file only once, for example in class initialization!
-
-        PyTorch use lazy evaluations, so in this case multi-threading isn't
-        capable and dataloader will be work with only 1 worker (file was opened
-        only 1 time). For dealing with it, open h5 file in each method which
-        forwards to h5 file content. In this case each dataloader worker can
-        open h5 file regardless of class initialization.
-        """
         key = self.keys[index]
-        if self.data_file is None:
+        data_file = self.data_file
+        if data_file is None:
             source = self.data_path / key
         else:
-            # copy class instance for current dataloader worker
-            data_file = self.data_file
             source = data_file[key]
         image = self._read_image_(source)
         image = self._process_image_(image)
@@ -84,11 +75,10 @@ class ClassificationVicRegDataset(ClassificationDataset):
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
         key = self.keys[index]
-        if self.data_file is None:
+        data_file = self.data_file
+        if data_file is None:
             source = self.data_path / key
         else:
-            # copy class instance for current dataloader worker
-            data_file = self.data_file
             source = data_file[key]
         image = self._read_image_(source)
         image1, image2 = np.copy(image), np.copy(image)
