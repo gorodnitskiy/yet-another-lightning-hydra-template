@@ -1,7 +1,5 @@
 train:
   batch_size: 320
-  # RandomSampler requires shuffle=False in
-  # dataloader, but shuffling by itself
   shuffle: True
   num_workers: 8
   drop_last: True

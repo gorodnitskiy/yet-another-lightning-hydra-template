@@ -37,11 +37,11 @@ train:
     p: 0.5
   normalize:
     _target_: albumentations.Normalize
-    mean: [0.1307]
-    std: [0.3081]
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
     p: 1.0
 
-valid_test:
+valid_test_predict:
   order: ["resize", "normalize"]
   resize:
     _target_: albumentations.Resize
@@ -50,6 +50,6 @@ valid_test:
     p: 1.0
   normalize:
     _target_: albumentations.Normalize
-    mean: [0.1307]
-    std: [0.3081]
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
     p: 1.0
