@@ -14,10 +14,11 @@ class SingleLitModule(BaseLitModule):
 
     A LightningModule organizes your PyTorch code into 6 sections:
         - Computations (init)
+        - Model loop (model_step)
         - Train loop (training_step)
         - Validation loop (validation_step)
         - Test loop (test_step)
-        - Prediction Loop (predict_step)
+        - Prediction loop (predict_step)
         - Optimizers and LR Schedulers (configure_optimizers)
 
     Docs:
