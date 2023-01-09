@@ -65,8 +65,10 @@ class ClassificationDataset(BaseDataset):
         label = torch.tensor(self.annotation[key]).long()
         return {"image": image.float(), "label": label, "name": key}
 
-    def get_labels(self) -> List[Any]:
-        return [self.annotation[key] for key in self.keys]
+    def get_weights(self) -> List[float]:
+        label_list = [self.annotation[key] for key in self.keys]
+        weights = 1.0 / np.bincount(label_list)
+        return weights.tolist()
 
 
 class ClassificationVicRegDataset(ClassificationDataset):
@@ -129,6 +131,3 @@ class NoLabelsDataset(BaseDataset):
 
     def __len__(self) -> int:
         return len(self.keys)
-
-    def get_labels(self) -> List[Any]:
-        raise NotImplementedError()

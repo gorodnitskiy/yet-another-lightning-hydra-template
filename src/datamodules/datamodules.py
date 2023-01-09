@@ -1,9 +1,7 @@
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import hydra
-import numpy as np
-import torch
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
@@ -83,20 +81,6 @@ class SingleDataModule(LightningDataModule):
                 self.predict_set[dataset_name] = self._get_dataset_(
                     "predict", dataset_name=dataset_name
                 )
-
-    def get_weights(
-        self, split_name: str, dataset_name: Optional[str] = None
-    ) -> torch.Tensor:
-        dataset: Any = self._get_dataset_(
-            split_name, dataset_name=dataset_name
-        )
-        assert hasattr(
-            dataset, "get_labels"
-        ), "Dataset should have get_labels method"
-        label_list = dataset.get_labels()
-        counts = np.bincount(label_list)
-        weights = torch.from_numpy(1.0 / counts).float()
-        return weights
 
     def train_dataloader(
         self,

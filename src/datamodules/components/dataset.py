@@ -1,6 +1,6 @@
 import io
 from pathlib import Path
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, Optional
 
 import cv2
 import numpy as np
@@ -48,7 +48,4 @@ class BaseDataset(Dataset):
         raise NotImplementedError()
 
     def __len__(self) -> int:
-        raise NotImplementedError()
-
-    def get_labels(self) -> List[Any]:
         raise NotImplementedError()
