@@ -4,8 +4,8 @@ import torch
 from omegaconf import DictConfig
 
 from src.modules.components.lit_module import BaseLitModule
-from src.modules.losses.losses import load_loss
-from src.modules.metrics.metrics import load_metrics
+from src.modules.losses import load_loss
+from src.modules.metrics import load_metrics
 
 
 class MultipleLitModule(BaseLitModule):
