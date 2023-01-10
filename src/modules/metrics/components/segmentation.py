@@ -2,7 +2,7 @@ import torch
 from torchmetrics import Metric
 
 
-class IoUManual(Metric):
+class IoU(Metric):
     def __init__(
         self,
         n_class: int,

@@ -5,7 +5,7 @@ from pytorch_lightning.utilities import FLOAT32_EPSILON
 from torchmetrics import Metric
 
 
-class AccuracyManual(Metric):
+class Accuracy(Metric):
     def __init__(self, dist_sync_on_step: bool = False) -> None:
         super().__init__(dist_sync_on_step=dist_sync_on_step)
         self.add_state(
@@ -24,7 +24,7 @@ class AccuracyManual(Metric):
         return self.correct.float() / (self.total + FLOAT32_EPSILON)
 
 
-class NDCGManual(Metric):
+class NDCG(Metric):
     def __init__(self, dist_sync_on_step: bool = False, k: int = 10) -> None:
         super().__init__(dist_sync_on_step=dist_sync_on_step)
         self.add_state("ndcg", default=torch.tensor(0.0), dist_reduce_fx="sum")
@@ -66,7 +66,7 @@ class NDCGManual(Metric):
         return self.ndcg / self.count
 
 
-class MRRManual(Metric):
+class MRR(Metric):
     def __init__(
         self, dist_sync_on_step: bool = False, k: Optional[int] = None
     ) -> None:
@@ -99,7 +99,7 @@ class MRRManual(Metric):
         return self.mrr / self.count
 
 
-class SentiMRRManual(Metric):
+class SentiMRR(Metric):
     def __init__(
         self, dist_sync_on_step: bool = False, k: Optional[int] = None
     ) -> None:

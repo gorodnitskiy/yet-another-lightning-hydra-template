@@ -11,11 +11,11 @@ _TEST_METRICS_CFG = (
     {"_target_": "torchmetrics.FBetaScore", "task": "binary"},
     {"_target_": "torchmetrics.AveragePrecision", "task": "binary"},
     {"_target_": "torchmetrics.JaccardIndex", "task": "binary"},
-    {"_target_": "src.modules.metrics.AccuracyManual"},
-    {"_target_": "src.modules.metrics.IoUManual", "n_class": 2},
-    {"_target_": "src.modules.metrics.NDCGManual"},
-    {"_target_": "src.modules.metrics.MRRManual"},
-    {"_target_": "src.modules.metrics.SentiMRRManual"},
+    {"_target_": "src.modules.metrics.Accuracy"},
+    {"_target_": "src.modules.metrics.IoU", "n_class": 2},
+    {"_target_": "src.modules.metrics.NDCG"},
+    {"_target_": "src.modules.metrics.MRR"},
+    {"_target_": "src.modules.metrics.SentiMRR"},
 )
 
 _TEST_METRICS_CFG_COMPLEX = (
@@ -44,6 +44,16 @@ _TEST_METRICS_CFG_COMPLEX = (
                 "task": "binary",
             },
             "AUROC": {"_target_": "torchmetrics.AUROC", "task": "binary"},
+        },
+    },
+    {
+        "main": {"_target_": "src.modules.metrics.Accuracy"},
+        "valid_best": {"_target_": "torchmetrics.MaxMetric"},
+        "additional": {
+            "IoU": {
+                "_target_": "src.modules.metrics.IoU",
+                "n_class": 2,
+            },
         },
     },
 )
