@@ -11,8 +11,8 @@ from pytorch_lightning import Callback
 from pytorch_lightning.loggers import LightningLoggerBase
 from pytorch_lightning.utilities import rank_zero_only
 
-from src.modules.losses.losses import load_loss
-from src.modules.metrics.metrics import load_metrics
+from src.modules.losses import load_loss
+from src.modules.metrics import load_metrics
 from src.utils import pylogger, rich_utils
 
 log = pylogger.get_pylogger(__name__)
