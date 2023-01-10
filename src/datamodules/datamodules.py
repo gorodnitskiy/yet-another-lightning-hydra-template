@@ -41,6 +41,14 @@ class SingleDataModule(LightningDataModule):
     def __init__(
         self, datasets: DictConfig, loaders: DictConfig, transforms: DictConfig
     ) -> None:
+        """DataModule with standalone train, val and test dataloaders.
+
+        Args:
+            datasets (DictConfig): Datasets config.
+            loaders (DictConfig): Loaders config.
+            transforms (DictConfig): Transforms config.
+        """
+
         super().__init__()
         self.cfg_datasets = datasets
         self.cfg_loaders = loaders
@@ -110,6 +118,14 @@ class MultipleDataModule(SingleDataModule):
     def __init__(
         self, datasets: DictConfig, loaders: DictConfig, transforms: DictConfig
     ) -> None:
+        """DataModule with multiple train, val and test dataloaders.
+
+        Args:
+            datasets (DictConfig): Datasets config.
+            loaders (DictConfig): Loaders config.
+            transforms (DictConfig): Transforms config.
+        """
+
         super().__init__(
             datasets=datasets, loaders=loaders, transforms=transforms
         )
