@@ -31,13 +31,13 @@ class MNISTDataModule(SingleDataModule):
     def setup(self, stage: Optional[str] = None) -> None:
         # load and split datasets only if not loaded already
         if not self.train_set and not self.valid_set and not self.test_set:
-            self.transforms.set_stage("train")
+            self.transforms.set_mode("test")
             train_set = MNIST(
                 self.cfg_datasets.get("data_dir"),
                 train=True,
                 transform=self.transforms,
             )
-            self.transforms.set_stage("test")
+            self.transforms.set_mode("test")
             test_set = MNIST(
                 self.cfg_datasets.get("data_dir"),
                 train=False,

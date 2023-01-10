@@ -8,39 +8,67 @@ from PIL import Image
 
 
 class TransformsWrapper:
-    def __init__(self, config: DictConfig) -> None:
-        self.set_stage("train")
+    def __init__(self, transforms_cfg: DictConfig) -> None:
+        """TransformsWrapper module.
+
+        Args:
+            transforms_cfg (DictConfig): Transforms config.
+        """
+
+        self.mode = "train"
+
         # train augmentations
         train_aug = []
-        if not config.train.get("order"):
+        if not transforms_cfg.train.get("order"):
             raise RuntimeError(
                 "TransformsWrapper requires param <order>, i.e."
                 "order of augmentations as List[augmentation name]"
             )
-        for aug_name in config.train.get("order"):
-            aug = hydra.utils.instantiate(config.train.get(aug_name))
+        for aug_name in transforms_cfg.train.get("order"):
+            aug = hydra.utils.instantiate(transforms_cfg.train.get(aug_name))
             train_aug.append(aug)
         self.train_aug = albumentations.Compose(train_aug)
 
-        # valid and test augmentations
-        valid_test_aug = []
-        if not config.valid_test.get("order"):
+        # valid, test and predict augmentations
+        valid_test_predict_aug = []
+        if not transforms_cfg.valid_test_predict.get("order"):
             raise RuntimeError(
                 "TransformsWrapper requires param <order>, i.e."
                 "order of augmentations as List[augmentation name]"
             )
-        for aug_name in config.valid_test.get("order"):
-            aug = hydra.utils.instantiate(config.valid_test.get(aug_name))
-            valid_test_aug.append(aug)
-        self.valid_test_aug = albumentations.Compose(valid_test_aug)
+        for aug_name in transforms_cfg.valid_test_predict.get("order"):
+            aug = hydra.utils.instantiate(
+                transforms_cfg.valid_test_predict.get(aug_name)
+            )
+            valid_test_predict_aug.append(aug)
+        self.valid_test_predict_aug = albumentations.Compose(
+            valid_test_predict_aug
+        )
 
-    @classmethod
-    def set_stage(cls, stage: str) -> None:
-        cls.stage = stage
+    def set_mode(self, mode: str) -> None:
+        """Set `__call__` mode.
 
-    def __call__(self, image: Any, **kwargs) -> Any:
+        Args:
+            mode (str): Applying mode.
+        """
+
+        self.mode = mode
+
+    def __call__(self, image: Any, **kwargs: Any) -> Any:
+        """Apply TransformsWrapper module.
+
+        That module has two modes: `train` and `valid_test_predict`.
+
+        Args:
+            image (Any): Input image.
+            kwargs (Any): Additional arguments.
+
+        Returns:
+            Any: Transformation results.
+        """
+
         if isinstance(image, Image.Image):
             image = np.asarray(image)
-        if self.stage == "train":
+        if self.mode == "train":
             return self.train_aug(image=image, **kwargs)
-        return self.valid_test_aug(image=image, **kwargs)
+        return self.valid_test_predict_aug(image=image, **kwargs)

@@ -53,7 +53,7 @@ class SingleDataModule(LightningDataModule):
     def _get_dataset_(
         self, split_name: str, dataset_name: Optional[str] = None
     ) -> Dataset:
-        self.transforms.set_stage(split_name)
+        self.transforms.set_mode(split_name)
         cfg = self.cfg_datasets.get(split_name)
         if dataset_name:
             cfg = cfg.get(dataset_name)

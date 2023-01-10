@@ -14,7 +14,7 @@ transforms:
       std: [0.3081]
       p: 1.0
 
-  valid_test:
+  valid_test_predict:
     order: ["normalize"]
     normalize:
       _target_: albumentations.Normalize
