@@ -16,11 +16,28 @@ class BaseDataset(Dataset):
         read_mode: str = "pillow",
         to_gray: bool = False,
     ) -> None:
+        """BaseDataset.
+
+        Args:
+            transforms (Callable): Transforms.
+            read_mode (str): Image read mode, `pillow` or `cv2`. Default to `pillow`.
+            to_gray (bool): Images to gray mode. Default to False.
+        """
+
         self.read_mode = read_mode
         self.to_gray = to_gray
         self.transforms = transforms
 
     def _read_image_(self, image: Any) -> np.ndarray:
+        """Read image from source.
+
+        Args:
+            image (Any): Image source. Could be str, Path or bytes.
+
+        Returns:
+            np.ndarray: Loaded image.
+        """
+
         if self.read_mode == "pillow":
             if not isinstance(image, (str, Path)):
                 image = io.BytesIO(image)
@@ -40,6 +57,15 @@ class BaseDataset(Dataset):
         return image
 
     def _process_image_(self, image: np.ndarray) -> torch.Tensor:
+        """Process image, including transforms, etc.
+
+        Args:
+            image (np.ndarray): Image in np.ndarray format.
+
+        Returns:
+            torch.Tensor: Image prepared for dataloader.
+        """
+
         if self.transforms:
             image = self.transforms(image=image)["image"]
         return torch.from_numpy(image).permute(2, 0, 1)

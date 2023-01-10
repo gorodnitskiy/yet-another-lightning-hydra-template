@@ -51,7 +51,7 @@ class H5PyFile:
     def __init__(
         self, filename: Optional[str] = None, mode: str = "r", **kwargs: Any
     ) -> None:
-        """Initialize H5PyFile class.
+        """H5PyFile module.
 
         Args:
             filename (:obj:`str`, optional): h5py filename. Default to None.

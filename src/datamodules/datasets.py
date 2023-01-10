@@ -14,16 +14,27 @@ class ClassificationDataset(BaseDataset):
     def __init__(
         self,
         json_path: Optional[str] = None,
-        lst_path: Optional[str] = None,
+        txt_path: Optional[str] = None,
         data_path: Optional[str] = None,
         transforms: Optional[Callable] = None,
         read_mode: str = "pillow",
         to_gray: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
+        """ClassificationDataset.
+
+        Args:
+            json_path (:obj:`str`, optional): Path to annotation json.
+            txt_path (:obj:`str`, optional): Path to annotation txt.
+            data_path (:obj:`str`, optional): Path to HDF5 file or images source dir.
+            transforms (Callable): Transforms.
+            read_mode (str): Image read mode, `pillow` or `cv2`. Default to `pillow`.
+            to_gray (bool): Images to gray mode. Default to False.
+        """
+
         super().__init__(transforms, read_mode, to_gray)
-        if (json_path and lst_path) or (not json_path and not lst_path):
-            raise ValueError("Requires json_path or lst_path, but not both.")
+        if (json_path and txt_path) or (not json_path and not txt_path):
+            raise ValueError("Requires json_path or txt_path, but not both.")
         elif json_path:
             json_path = Path(json_path)
             if not json_path.is_file():
@@ -31,12 +42,12 @@ class ClassificationDataset(BaseDataset):
             with open(json_path) as json_file:
                 self.annotation = json.load(json_file)
         else:
-            lst_path = Path(lst_path)
-            if not lst_path.is_file():
-                raise RuntimeError(f"'{lst_path}' must be a file.")
+            txt_path = Path(txt_path)
+            if not txt_path.is_file():
+                raise RuntimeError(f"'{txt_path}' must be a file.")
             self.annotation = {}
-            with open(lst_path) as lst_file:
-                for line in lst_file:
+            with open(txt_path) as txt_file:
+                for line in txt_file:
                     _, label, path = line[:-1].split("\t")
                     self.annotation[path] = label
 
@@ -72,7 +83,7 @@ class ClassificationDataset(BaseDataset):
 
 
 class ClassificationVicRegDataset(ClassificationDataset):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
@@ -99,18 +110,33 @@ class ClassificationVicRegDataset(ClassificationDataset):
 class NoLabelsDataset(BaseDataset):
     def __init__(
         self,
-        image_paths: Optional[str] = None,
-        dir_paths: Optional[str] = None,
-        lst_paths: Optional[str] = None,
-        json_paths: Optional[str] = None,
+        file_paths: Optional[List[str]] = None,
+        dir_paths: Optional[List[str]] = None,
+        txt_paths: Optional[List[str]] = None,
+        json_paths: Optional[List[str]] = None,
         dirname: Optional[str] = None,
         transforms: Optional[Callable] = None,
         read_mode: str = "pillow",
         to_gray: bool = False,
     ) -> None:
+        """NoLabelsDataset.
+
+        Args:
+            file_paths (:obj:`List[str]`, optional): List of files.
+            dir_paths (:obj:`List[str]`, optional): List of directories.
+            txt_paths (:obj:`List[str]`, optional): List of TXT files.
+            json_paths (:obj:`List[str]`, optional): List of JSON files.
+            dirname (:obj:`str`, optional): Images source dir.
+            transforms (Callable): Transforms.
+            read_mode (str): Image read mode, `pillow` or `cv2`. Default to `pillow`.
+            to_gray (bool): Images to gray mode. Default to False.
+        """
+
         super().__init__(transforms, read_mode, to_gray)
-        if image_paths or dir_paths or lst_paths:
-            self.keys = parse_image_paths(image_paths, dir_paths, lst_paths)
+        if file_paths or dir_paths or txt_paths:
+            self.keys = parse_image_paths(
+                file_paths=file_paths, dir_paths=dir_paths, txt_paths=txt_paths
+            )
         elif json_paths:
             self.keys = []
             for json_path in json_paths:
