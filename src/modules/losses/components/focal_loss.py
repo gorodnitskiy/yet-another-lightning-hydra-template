@@ -22,7 +22,7 @@ def reduce(tensor: torch.Tensor, reduction: str) -> torch.Tensor:
     raise ValueError("Reduction parameter unknown.")
 
 
-class FocalLossManual(torch.nn.Module):
+class FocalLoss(torch.nn.Module):
     def __init__(
         self,
         alpha: float = 1.0,

@@ -11,7 +11,7 @@ _TEST_LOSS_CFG = (
         "embedding_size": 16,
         "num_classes": 10,
     },
-    {"_target_": "src.modules.losses.FocalLossManual"},
+    {"_target_": "src.modules.losses.FocalLoss"},
     {
         "_target_": "segmentation_models_pytorch.losses.DiceLoss",
         "mode": "binary",
