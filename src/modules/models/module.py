@@ -32,7 +32,7 @@ class BaseModule(torch.nn.Module):
         model_repo: Optional[str] = None,
         use_pretrained: bool = True,
         freeze_params: Any = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Available models registries:
 
@@ -71,12 +71,12 @@ class BaseModule(torch.nn.Module):
             set_parameter_requires_grad(self.model, freeze_params)
 
     @staticmethod
-    def get_timm_list_models(*args, **kwargs) -> List[str]:
+    def get_timm_list_models(*args: Any, **kwargs: Any) -> List[str]:
         return timm.list_models(*args, **kwargs)
 
     @staticmethod
     def get_torch_hub_list_models(
-        model_repo: str, *args, **kwargs
+        model_repo: str, *args: Any, **kwargs: Any
     ) -> List[Any]:
         """
         github: (str) – a string with format <repo_owner/repo_name
@@ -85,7 +85,7 @@ class BaseModule(torch.nn.Module):
 
     @staticmethod
     def get_torch_hub_model_help(
-        model_repo: str, model_name: str, *args, **kwargs
+        model_repo: str, model_name: str, *args: Any, **kwargs: Any
     ) -> List[Any]:
         """
         github: (str) – a string with format <repo_owner/repo_name

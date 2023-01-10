@@ -52,7 +52,7 @@ class ReIdentificator(BaseModule):
         gem_trainable: Optional[bool] = None,
         use_pretrained: bool = False,
         freeze_params: Any = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         super().__init__(model_name, model_repo, use_pretrained, freeze_params)
         if head_type == "gem":
