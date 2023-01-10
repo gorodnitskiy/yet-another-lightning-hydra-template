@@ -4,7 +4,7 @@ https://github.com/PyTorchLightning/pytorch-lightning/blob/master/tests/helpers/
 """
 
 import sys
-from typing import Optional
+from typing import Any, Optional
 
 import pytest
 import torch
@@ -52,7 +52,7 @@ class RunIf:
         neptune: bool = False,
         comet: bool = False,
         mlflow: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ):
         """
         Args:
