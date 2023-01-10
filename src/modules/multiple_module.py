@@ -18,6 +18,17 @@ class MultipleLitModule(BaseLitModule):
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        """LightningModule with multiple train, val and test dataloaders.
+
+        Args:
+            network (DictConfig): Network config.
+            optimizer (DictConfig): Optimizer config.
+            scheduler (DictConfig): Scheduler config.
+            logging (DictConfig): Logging config.
+            args (Any): Additional arguments for pytorch_lightning.LightningModule.
+            kwargs (Any): Additional keyword arguments for pytorch_lightning.LightningModule.
+        """
+
         super().__init__(
             network, optimizer, scheduler, logging, *args, **kwargs
         )

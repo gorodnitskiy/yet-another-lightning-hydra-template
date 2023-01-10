@@ -34,6 +34,17 @@ class SingleLitModule(BaseLitModule):
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        """LightningModule with standalone train, val and test dataloaders.
+
+        Args:
+            network (DictConfig): Network config.
+            optimizer (DictConfig): Optimizer config.
+            scheduler (DictConfig): Scheduler config.
+            logging (DictConfig): Logging config.
+            args (Any): Additional arguments for pytorch_lightning.LightningModule.
+            kwargs (Any): Additional keyword arguments for pytorch_lightning.LightningModule.
+        """
+
         super().__init__(
             network, optimizer, scheduler, logging, *args, **kwargs
         )
@@ -203,6 +214,20 @@ class SingleVicRegLitModule(BaseLitModule):
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        """LightningModule with standalone train, val and test dataloaders for
+        Self-Supervised task using VicReg approach.
+
+        Args:
+            network (DictConfig): Network config.
+            optimizer (DictConfig): Optimizer config.
+            scheduler (DictConfig): Scheduler config.
+            logging (DictConfig): Logging config.
+            proj_hidden_dim (int): Projector hidden dimensions.
+            proj_output_dim (int): Projector output dimensions.
+            args (Any): Additional arguments for pytorch_lightning.LightningModule.
+            kwargs (Any): Additional keyword arguments for pytorch_lightning.LightningModule.
+        """
+
         super().__init__(
             network, optimizer, scheduler, logging, *args, **kwargs
         )

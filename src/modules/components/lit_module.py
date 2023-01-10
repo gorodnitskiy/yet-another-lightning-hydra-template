@@ -18,6 +18,17 @@ class BaseLitModule(LightningModule):
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        """BaseLightningModule.
+
+        Args:
+            network (DictConfig): Network config.
+            optimizer (DictConfig): Optimizer config.
+            scheduler (DictConfig): Scheduler config.
+            logging (DictConfig): Logging config.
+            args (Any): Additional arguments for pytorch_lightning.LightningModule.
+            kwargs (Any): Additional keyword arguments for pytorch_lightning.LightningModule.
+        """
+
         super().__init__(*args, **kwargs)
         self.model = hydra.utils.instantiate(network.model)
         self.opt_params = optimizer
