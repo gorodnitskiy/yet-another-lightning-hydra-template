@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +14,17 @@ from sklearn.metrics import (
 def accuracy(
     targets: List[int], preds: List[int], verbose: bool = True
 ) -> float:
-    """Calculate Accuracy by classes."""
+    """Calculate Accuracy by classes.
+
+    Args:
+        targets (List[int]): List of targets.
+        preds (List[int]): List of predictions.
+        verbose: (bool): Verbose mode. Default to True.
+
+    Returns:
+        float: Total accuracy value.
+    """
+
     acc = accuracy_score(targets, preds)
     if verbose:
         print(f"Full: accuracy={acc:.5f}")
@@ -36,11 +46,22 @@ def auroc(
     targets: List[int],
     probs: List[float],
     plot: bool = False,
-    path: str = "",
+    path: Optional[str] = None,
     verbose: bool = True,
 ) -> float:
-    """Calculate and draw Area Under Receiver Operating Characteristic
-    Curve."""
+    """Calculate and draw Area Under Receiver Operating Characteristic Curve.
+
+    Args:
+        targets (List[int]): List of targets.
+        probs (List[float]): List of probabilities.
+        plot (bool): Plot show mode. Default to False.
+        path (:obj:`str`, optional): Save plot by path.
+        verbose: (bool): Verbose mode. Default to True.
+
+    Returns:
+        float: AUROC value.
+    """
+
     roc_auc = roc_auc_score(targets, probs)
     if verbose:
         print(f"AUROC={roc_auc:.5f}")
@@ -67,10 +88,21 @@ def auprc(
     targets: List[int],
     probs: List[float],
     plot: bool = False,
-    path: str = "",
+    path: Optional[str] = None,
     verbose: bool = True,
 ) -> float:
-    """Calculate and draw Area Under Precision-Recall Curve."""
+    """Calculate and draw Area Under Precision-Recall Curve.
+
+    Args:
+        targets (List[int]): List of targets.
+        probs (List[float]): List of probabilities.
+        plot (bool): Plot show mode. Default to False.
+        path (:obj:`str`, optional): Save plot by path.
+        verbose: (bool): Verbose mode. Default to True.
+
+    Returns:
+        float: AUPRC value.
+    """
     precision, recall, thresholds = precision_recall_curve(targets, probs)
     pr_auc = auc(recall, precision)
     if verbose:
