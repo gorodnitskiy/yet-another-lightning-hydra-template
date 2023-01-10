@@ -336,7 +336,7 @@ def register_custom_resolvers(
 
     def decorator(function: Callable) -> Callable:
         @wraps(function)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             return function(*args, **kwargs)
 
         return wrapper
