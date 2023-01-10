@@ -8,17 +8,13 @@ model:
   groups: 64
 
 loss:
-  name: "VicRegLoss"
-  weighted: False
-  split: "train"
-  dataset: null
-  params:
-    sim_loss_weight: 25.0
-    var_loss_weight: 25.0
-    cov_loss_weight: 1.0
+  _target_: "src.modules.losses.VicRegLoss"
+  sim_loss_weight: 25.0
+  var_loss_weight: 25.0
+  cov_loss_weight: 1.0
 
 metrics:
   main:
-    _target_: "AccuracyManual"
+    _target_: "src.modules.metrics.Accuracy"
   valid_best:
-    _target_: "torchmetrics/MaxMetric"
+    _target_: "torchmetrics.MaxMetric"

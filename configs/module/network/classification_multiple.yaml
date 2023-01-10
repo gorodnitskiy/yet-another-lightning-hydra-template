@@ -8,13 +8,10 @@ model:
   groups: 64
 
 loss:
-  name: "torch.nn/CrossEntropyLoss"
-  weighted: False
-  split: "train"
-  dataset: null
+  _target_: "torch.nn.CrossEntropyLoss"
 
 metrics:
   main:
-    _target_: "AccuracyManual"
+    _target_: "src.modules.metrics.Accuracy"
   valid_best:
-    _target_: "torchmetrics/MaxMetric"
+    _target_: "torchmetrics.MaxMetric"

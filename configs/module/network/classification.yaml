@@ -7,17 +7,15 @@ model:
   bias: True
 
 loss:
-  name: "torch.nn/CrossEntropyLoss"
-  weighted: False
-  split: "train"
+  _target_: "torch.nn.CrossEntropyLoss"
 
 metrics:
   main:
-    _target_: "torchmetrics/Accuracy"
+    _target_: "torchmetrics.Accuracy"
     task: "binary"
   valid_best:
-    _target_: "torchmetrics/MaxMetric"
+    _target_: "torchmetrics.MaxMetric"
   additional:
-    names: ["torchmetrics/AUROC"]
-    torchmetrics/AUROC:
+    AUROC:
+      _target_: "torchmetrics.AUROC"
       task: "binary"

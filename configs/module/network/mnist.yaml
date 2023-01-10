@@ -7,13 +7,13 @@ model:
   output_size: 10
 
 loss:
-  name: "torch.nn/CrossEntropyLoss"
+  _target_: "torch.nn.CrossEntropyLoss"
 
 metrics:
   main:
-    _target_: "torchmetrics/Accuracy"
+    _target_: "torchmetrics.Accuracy"
     task: "multiclass"
     num_classes: 10
     top_k: 1
   valid_best:
-    _target_: "torchmetrics/MaxMetric"
+    _target_: "torchmetrics.MaxMetric"
