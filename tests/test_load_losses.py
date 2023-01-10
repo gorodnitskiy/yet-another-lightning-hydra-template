@@ -1,33 +1,52 @@
+from typing import Any, Dict, Tuple
+
 import omegaconf
 import pytest
 
-from src.modules.losses.losses import load_loss
+from src.modules.losses import load_loss
 
-_IMPLEMENTED_LOSS_NAMES = (
-    "AngularPenaltySMLoss",
-    "FocalLossManual",
-    "segmentation_models_pytorch/DiceLoss",
-    "segmentation_models_pytorch/FocalLoss",
-    "segmentation_models_pytorch/JaccardLoss",
-    "segmentation_models_pytorch/LovaszLoss",
-    "segmentation_models_pytorch/TverskyLoss",
-    "torch.nn/BCEWithLogitsLoss",
-    "torch.nn/BCELoss",
-    "torch.nn/CrossEntropyLoss",
-    "torch.nn/L1Loss",
-    "torch.nn/MSELoss",
-    "torch.nn/NLLLoss",
-    "torch.nn/SmoothL1Loss",
-    "VicRegLoss",
+_TEST_LOSS_CFG = (
+    {
+        "_target_": "src.modules.losses.AngularPenaltySMLoss",
+        "embedding_size": 16,
+        "num_classes": 10,
+    },
+    {"_target_": "src.modules.losses.FocalLossManual"},
+    {
+        "_target_": "segmentation_models_pytorch.losses.DiceLoss",
+        "mode": "binary",
+    },
+    {
+        "_target_": "segmentation_models_pytorch.losses.FocalLoss",
+        "mode": "binary",
+    },
+    {
+        "_target_": "segmentation_models_pytorch.losses.JaccardLoss",
+        "mode": "binary",
+    },
+    {
+        "_target_": "segmentation_models_pytorch.losses.LovaszLoss",
+        "mode": "binary",
+    },
+    {"_target_": "torch.nn.BCEWithLogitsLoss"},
+    {"_target_": "torch.nn.BCELoss"},
+    {"_target_": "torch.nn.CrossEntropyLoss"},
+    {"_target_": "torch.nn.MSELoss"},
+    {"_target_": "torch.nn.SmoothL1Loss"},
+    {"_target_": "src.modules.losses.VicRegLoss"},
 )
 
+_LOSS_WEIGHTS = ((0.1, 0.5, 0.4), (1.0, 5.0, 4.0))
 
-@pytest.mark.parametrize("loss_name", _IMPLEMENTED_LOSS_NAMES)
-def test_loss(loss_name: str):
-    cfg = {"weighted": False, "name": loss_name, "params": None}
-    if "segmentation_models_pytorch/" in loss_name:
-        cfg.update({"params": {"mode": "binary"}})
-    elif loss_name == "AngularPenaltySMLoss":
-        cfg.update({"params": {"embedding_size": 16, "num_classes": 10}})
-    cfg = omegaconf.OmegaConf.create(cfg)
+
+@pytest.mark.parametrize("loss_cfg", _TEST_LOSS_CFG)
+def test_loss_cfg(loss_cfg: Dict[str, Any]):
+    cfg = omegaconf.OmegaConf.create(loss_cfg)
+    _ = load_loss(cfg)
+
+
+@pytest.mark.parametrize("weight", _LOSS_WEIGHTS)
+def test_loss_cfg_with_weight(weight: Tuple[float]):
+    loss_cfg = {"_target_": "torch.nn.CrossEntropyLoss", "weight": weight}
+    cfg = omegaconf.OmegaConf.create(loss_cfg)
     _ = load_loss(cfg)
