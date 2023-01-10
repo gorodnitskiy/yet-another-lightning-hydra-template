@@ -293,7 +293,7 @@ class LiteProgressBar(ProgressBarBase):
     def enable(self) -> None:
         self.enable = True
 
-    def on_train_epoch_start(self, *args, **kwargs) -> None:
+    def on_train_epoch_start(self, *args: Any, **kwargs: Any) -> None:
         self.timer.reset()
         trainer = args[0]
         log = copy.deepcopy(trainer.logged_metrics)
@@ -306,7 +306,7 @@ class LiteProgressBar(ProgressBarBase):
         self.pbar.update(log)
         self.pbar.update(trainer.logged_metrics)
 
-    def on_train_epoch_end(self, *args, **kwargs) -> None:
+    def on_train_epoch_end(self, *args: Any, **kwargs: Any) -> None:
         trainer = args[0]
         log = copy.deepcopy(trainer.logged_metrics)
         if "epoch" in log:
@@ -319,7 +319,7 @@ class LiteProgressBar(ProgressBarBase):
         self.pbar.update(trainer.logged_metrics)
 
     def step(
-        self, part: str, batch_idx: int, total_batches: int, *args
+        self, part: str, batch_idx: int, total_batches: int, *args: Any
     ) -> None:
         self.timer.update(float(batch_idx) / float(total_batches))
         trainer = args[0]
@@ -335,13 +335,13 @@ class LiteProgressBar(ProgressBarBase):
         log["Info/Time"] = str(self.timer)
         self.pbar.update(log)
 
-    def on_train_batch_end(self, *args, **kwargs) -> None:
+    def on_train_batch_end(self, *args: Any, **kwargs: Any) -> None:
         super().on_train_batch_end(*args, **kwargs)
         self.step(
             "train", self.train_batch_idx, self.total_train_batches, *args
         )
 
-    def on_validation_epoch_start(self, *args, **kwargs) -> None:
+    def on_validation_epoch_start(self, *args: Any, **kwargs: Any) -> None:
         self.timer.reset()
         trainer = args[0]
         log = trainer.logged_metrics
@@ -354,7 +354,7 @@ class LiteProgressBar(ProgressBarBase):
         self.pbar.update(log)
         self.pbar.update(trainer.logged_metrics)
 
-    def on_validation_epoch_end(self, *args, **kwargs) -> None:
+    def on_validation_epoch_end(self, *args: Any, **kwargs: Any) -> None:
         trainer = args[0]
         log = copy.deepcopy(trainer.logged_metrics)
         if "epoch" in log:
@@ -366,6 +366,6 @@ class LiteProgressBar(ProgressBarBase):
         self.pbar.update(log)
         self.pbar.update(trainer.logged_metrics)
 
-    def on_validation_batch_end(self, *args, **kwargs) -> None:
+    def on_validation_batch_end(self, *args: Any, **kwargs: Any) -> None:
         super().on_validation_batch_end(*args, **kwargs)
         self.step("val", self.val_batch_idx, self.total_val_batches, *args)
