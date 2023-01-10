@@ -8,20 +8,20 @@ defaults:
 datasets:
   train:
     _target_: src.datamodules.datasets.ClassificationDataset
-    lst_path: ${paths.data_dir}/train/data.lst
+    json_path: ${paths.data_dir}/train/data.json
 
   valid:
     _target_: src.datamodules.datasets.ClassificationDataset
-    lst_path: ${paths.data_dir}/valid/data.lst
+    json_path: ${paths.data_dir}/valid/data.json
 
   test:
     _target_: src.datamodules.datasets.ClassificationDataset
-    lst_path: ${paths.data_dir}/test/data.lst
+    json_path: ${paths.data_dir}/test/data.json
 
   predict:
     dataset1:
       _target_: src.datamodules.datasets.ClassificationDataset
-      lst_path: ${paths.data_dir}/predict/data1.lst
+      json_path: ${paths.data_dir}/predict/data1.json
     dataset2:
       _target_: src.datamodules.datasets.ClassificationDataset
-      lst_path: ${paths.data_dir}/predict/data2.lst
+      json_path: ${paths.data_dir}/predict/data2.json
