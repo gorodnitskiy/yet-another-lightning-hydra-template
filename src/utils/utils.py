@@ -264,7 +264,7 @@ def save_file(path: str, content: str) -> None:
         file.write(content)
 
 
-def instantiate_plugins(cfg: DictConfig) -> List[Any]:
+def instantiate_plugins(cfg: DictConfig) -> Optional[List[Any]]:
     """Instantiates lightning plugins from config.
 
     Args:
@@ -274,16 +274,15 @@ def instantiate_plugins(cfg: DictConfig) -> List[Any]:
         List[Any]: List with all instantiated plugins.
     """
 
-    plugins: List[Any] = []
-
     if not cfg.extras.get("plugins"):
         log.warning("No plugins configs found! Skipping...")
-        return plugins
+        return
 
     if cfg.trainer.get("accelerator") == "cpu":
         log.warning("Using CPU as accelerator! Skipping...")
-        return plugins
+        return
 
+    plugins: List[Any] = []
     for _, pl_conf in cfg.extras.get("plugins").items():
         if isinstance(pl_conf, DictConfig) and "_target_" in pl_conf:
             log.info(f"Instantiating plugin <{pl_conf._target_}>")
