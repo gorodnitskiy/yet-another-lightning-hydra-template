@@ -1,6 +1,6 @@
 import os
 import random
-from typing import Any, Dict, Iterable
+from typing import Any, Dict
 
 import numpy as np
 import torch
@@ -14,13 +14,15 @@ from src.utils import pylogger
 
 log = pylogger.get_pylogger(__name__)
 
-nvmlInit()
-GPUS_NUM = torch.cuda.device_count()
-GPU_CARDS = (nvmlDeviceGetHandleByIndex(num) for num in range(GPUS_NUM))
 
-
-def get_gpu_memory_info(cards: Iterable = GPU_CARDS) -> None:
-    """Get GPU memory info by PYNVML for each GPU: total, free and used."""
+def log_gpu_memory_metadata() -> None:
+    """Logging GPUs memory metadata (total, free and used) if it's available by
+    PYNVML."""
+    gpus_num = torch.cuda.device_count()
+    if gpus_num == 0:
+        return
+    nvmlInit()
+    cards = (nvmlDeviceGetHandleByIndex(num) for num in range(gpus_num))
     for i, card in enumerate(cards):
         info = nvmlDeviceGetMemoryInfo(card)
         log.info(f"GPU memory info: card {i} : total : {info.total}")

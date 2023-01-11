@@ -74,7 +74,7 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
         objects.
     """
 
-    utils.get_gpu_memory_info()
+    utils.log_gpu_memory_metadata()
 
     # set seed for random number generators in pytorch, numpy and python.random
     if cfg.get("seed"):
