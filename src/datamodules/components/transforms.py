@@ -25,7 +25,9 @@ class TransformsWrapper:
                 "order of augmentations as List[augmentation name]"
             )
         for aug_name in transforms_cfg.train.get("order"):
-            aug = hydra.utils.instantiate(transforms_cfg.train.get(aug_name))
+            aug = hydra.utils.instantiate(
+                transforms_cfg.train.get(aug_name), _convert_="object"
+            )
             train_aug.append(aug)
         self.train_aug = albumentations.Compose(train_aug)
 
@@ -38,7 +40,8 @@ class TransformsWrapper:
             )
         for aug_name in transforms_cfg.valid_test_predict.get("order"):
             aug = hydra.utils.instantiate(
-                transforms_cfg.valid_test_predict.get(aug_name)
+                transforms_cfg.valid_test_predict.get(aug_name),
+                _convert_="object",
             )
             valid_test_predict_aug.append(aug)
         self.valid_test_predict_aug = albumentations.Compose(
