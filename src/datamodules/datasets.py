@@ -19,6 +19,7 @@ class ClassificationDataset(BaseDataset):
         transforms: Optional[Callable] = None,
         read_mode: str = "pillow",
         to_gray: bool = False,
+        label_type: str = "torch.FloatTensor",
         **kwargs: Any,
     ) -> None:
         """ClassificationDataset.
@@ -30,6 +31,8 @@ class ClassificationDataset(BaseDataset):
             transforms (Callable): Transforms.
             read_mode (str): Image read mode, `pillow` or `cv2`. Default to `pillow`.
             to_gray (bool): Images to gray mode. Default to False.
+            label_type (str): Label torch.tensor type. Default to torch.FloatTensor.
+            kwargs (Any): Additional keyword arguments for H5PyFile class.
         """
 
         super().__init__(transforms, read_mode, to_gray)
@@ -52,6 +55,7 @@ class ClassificationDataset(BaseDataset):
                     self.annotation[path] = label
 
         self.keys = list(self.annotation)
+        self.label_type = label_type
 
         data_path = "" if data_path is None else data_path
         self.data_path = data_path = Path(data_path)
@@ -73,7 +77,7 @@ class ClassificationDataset(BaseDataset):
             source = data_file[key]
         image = self._read_image_(source)
         image = self._process_image_(image)
-        label = torch.tensor(self.annotation[key]).long()
+        label = torch.tensor(self.annotation[key]).type(self.label_type)
         return {"image": image.float(), "label": label, "name": key}
 
     def get_weights(self) -> List[float]:
@@ -98,7 +102,7 @@ class ClassificationVicRegDataset(ClassificationDataset):
         # albumentations returns random augmentation on each __call__
         z1 = self._process_image_(image1)
         z2 = self._process_image_(image2)
-        label = torch.tensor(self.annotation[key]).long()
+        label = torch.tensor(self.annotation[key]).type(self.label_type)
         return {
             "z1": z1.float(),
             "z2": z2.float(),
