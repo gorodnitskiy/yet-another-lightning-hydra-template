@@ -15,7 +15,6 @@ optimizer:
   _target_: torch.optim.Adam
   lr: 3.0e-4
   weight_decay: 1.0e-5
-  momentum: 0.9
 
 scheduler:
   scheduler:
