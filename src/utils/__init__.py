@@ -1,6 +1,6 @@
 from src.utils.env_utils import (
     collect_random_states,
-    get_gpu_memory_info,
+    log_gpu_memory_metadata,
     set_max_threads,
     set_seed,
 )
