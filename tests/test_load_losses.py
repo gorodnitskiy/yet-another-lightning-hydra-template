@@ -29,24 +29,19 @@ _TEST_LOSS_CFG = (
         "mode": "binary",
     },
     {"_target_": "torch.nn.BCEWithLogitsLoss"},
+    {"_target_": "torch.nn.BCEWithLogitsLoss", "pos_weight": (2.0,)},
+    {"_target_": "torch.nn.BCEWithLogitsLoss", "pos_weight": (0.5,)},
     {"_target_": "torch.nn.BCELoss"},
     {"_target_": "torch.nn.CrossEntropyLoss"},
+    {"_target_": "torch.nn.CrossEntropyLoss", "weight": (0.1, 0.5, 0.4)},
+    {"_target_": "torch.nn.CrossEntropyLoss", "weight": (1.0, 5.0, 4.0)},
     {"_target_": "torch.nn.MSELoss"},
     {"_target_": "torch.nn.SmoothL1Loss"},
     {"_target_": "src.modules.losses.VicRegLoss"},
 )
 
-_LOSS_WEIGHTS = ((0.1, 0.5, 0.4), (1.0, 5.0, 4.0))
-
 
 @pytest.mark.parametrize("loss_cfg", _TEST_LOSS_CFG)
 def test_loss_cfg(loss_cfg: Dict[str, Any]):
-    cfg = omegaconf.OmegaConf.create(loss_cfg)
-    _ = load_loss(cfg)
-
-
-@pytest.mark.parametrize("weight", _LOSS_WEIGHTS)
-def test_loss_cfg_with_weight(weight: Tuple[float]):
-    loss_cfg = {"_target_": "torch.nn.CrossEntropyLoss", "weight": weight}
     cfg = omegaconf.OmegaConf.create(loss_cfg)
     _ = load_loss(cfg)
