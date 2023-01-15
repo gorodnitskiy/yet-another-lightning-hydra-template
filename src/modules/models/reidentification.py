@@ -1,10 +1,15 @@
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
 from torch import nn
 
-from src.modules.models.module import BaseModule
+from src.modules.models.module import (
+    BaseModule,
+    get_module_attr_by_name_recursively,
+    get_module_by_name,
+    replace_module_by_identity,
+)
 
 
 class GeM(nn.Module):
@@ -46,49 +51,81 @@ class ReIdentificator(BaseModule):
         model_name: str,
         head_type: str,
         embedding_size: Optional[int] = None,
+        kernel_size: Optional[Tuple[int, int]] = None,
         proj_hidden_dim: Optional[int] = None,
         model_repo: Optional[str] = None,
         p: Optional[int] = None,
-        gem_trainable: Optional[bool] = None,
-        use_pretrained: bool = False,
-        freeze_params: Any = None,
+        gem_trainable: bool = False,
+        freeze_layers: Any = None,
         **kwargs: Any,
     ) -> None:
-        super().__init__(model_name, model_repo, use_pretrained, freeze_params)
+        super().__init__(model_name, model_repo, freeze_layers, **kwargs)
+        head = get_module_by_name(
+            self.model, [name for name, _ in self.model.named_children()][-1]
+        )
+        avg_pool = get_module_by_name(
+            self.model, [name for name, _ in self.model.named_children()][-2]
+        )
         if head_type == "gem":
-            if gem_trainable:
-                self.model.avgpool = GeMTrainable(p=p)
-            else:
-                self.model.avgpool = GeM(p=p)
-            self.features_dim = self.model.fc.in_features
-            self.model.fc = nn.Identity()
-        else:
-            assert "resnet18" in model_name
-            out_bias = kwargs["bias"] if "bias" in kwargs else False
-            self.model.avgpool = nn.Sequential(
-                nn.Conv2d(
-                    512,
-                    512,
-                    kernel_size=(3, 5),
-                    stride=(1, 1),
-                    groups=512,
-                    bias=False,
-                ),
-                nn.BatchNorm2d(512),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(
-                    512,
-                    512,
-                    kernel_size=(1, 1),
-                    stride=(1, 1),
-                    bias=False,
-                ),
-                nn.BatchNorm2d(512),
-                nn.Flatten(),
+            assert p is not None
+            self.features_dim = get_module_attr_by_name_recursively(
+                head, 0, "in_features"
             )
-            self.model.fc = nn.Sequential(
-                nn.Linear(proj_hidden_dim, embedding_size, bias=out_bias),
-                nn.BatchNorm1d(embedding_size),
+            replace_module_by_identity(self.model, head, nn.Identity())
+            if gem_trainable:
+                replace_module_by_identity(
+                    self.model, avg_pool, GeMTrainable(p=p)
+                )
+            else:
+                replace_module_by_identity(self.model, avg_pool, GeM(p=p))
+
+        else:
+            assert embedding_size is not None
+            assert kernel_size is not None
+            assert proj_hidden_dim is not None
+            last_encoder_layer = get_module_by_name(
+                self.model,
+                [name for name, _ in self.model.named_children()][-3],
+            )
+            out_channels = get_module_attr_by_name_recursively(
+                last_encoder_layer, -1, "out_channels"
+            )
+            if not out_channels:
+                # Transformer based models don't have conv layers, which have
+                # out_channels attr, so need to check for out_features
+                out_channels = get_module_attr_by_name_recursively(
+                    last_encoder_layer, -1, "out_features"
+                )
+            replace_module_by_identity(
+                self.model,
+                avg_pool,
+                nn.Sequential(
+                    nn.Conv2d(
+                        out_channels,
+                        out_channels,
+                        kernel_size=kernel_size,
+                        groups=out_channels,
+                        bias=False,
+                    ),
+                    nn.BatchNorm2d(out_channels),
+                    nn.ReLU(inplace=True),
+                    nn.Conv2d(
+                        out_channels,
+                        out_channels,
+                        kernel_size=(1, 1),
+                        bias=False,
+                    ),
+                    nn.BatchNorm2d(out_channels),
+                    nn.Flatten(),
+                ),
+            )
+            replace_module_by_identity(
+                self.model,
+                head,
+                nn.Sequential(
+                    nn.Linear(proj_hidden_dim, embedding_size, bias=True),
+                    nn.BatchNorm1d(embedding_size),
+                ),
             )
             self.features_dim = embedding_size
 
