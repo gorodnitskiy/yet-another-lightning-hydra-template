@@ -1,5 +1,6 @@
 from typing import Any, List
 
+import hydra
 import torch
 from omegaconf import DictConfig
 from torch import nn
@@ -49,6 +50,9 @@ class SingleLitModule(BaseLitModule):
             network, optimizer, scheduler, logging, *args, **kwargs
         )
         self.loss = load_loss(network.loss)
+        self.output_activation = hydra.utils.instantiate(
+            network.output_activation, _partial_=True
+        )
         self.train_metric, _, self.train_add_metrics = load_metrics(
             network.metrics
         )
@@ -65,7 +69,7 @@ class SingleLitModule(BaseLitModule):
     def model_step(self, batch: Any, *args: Any, **kwargs: Any) -> Any:
         logits = self.forward(batch["image"])
         loss = self.loss(logits, batch["label"])
-        preds = torch.softmax(logits, dim=1)
+        preds = self.output_activation(logits)
         return loss, preds, batch["label"]
 
     def on_train_start(self) -> None:
@@ -173,7 +177,7 @@ class SingleLitModule(BaseLitModule):
         self, batch: Any, batch_idx: int, dataloader_idx: int = 0
     ) -> Any:
         logits = self.forward(batch["image"])
-        preds = torch.softmax(logits, dim=1)
+        preds = self.output_activation(logits)
         outputs = {"logits": logits, "preds": preds}
         if "label" in batch:
             outputs.update({"targets": batch["label"]})
@@ -190,7 +194,7 @@ class MNISTLitModule(SingleLitModule):
         x, y = batch
         logits = self.forward(x["image"])
         loss = self.loss(logits, y)
-        preds = torch.softmax(logits, dim=1)
+        preds = self.output_activation(logits)
         return loss, preds, y
 
     def predict_step(
@@ -198,7 +202,7 @@ class MNISTLitModule(SingleLitModule):
     ) -> Any:
         x, y = batch
         logits = self.forward(x["image"])
-        preds = torch.softmax(logits, dim=1)
+        preds = self.output_activation(logits)
         return {"logits": logits, "preds": preds, "targets": y}
 
 
@@ -254,9 +258,6 @@ class SingleVicRegLitModule(BaseLitModule):
         loss = self.loss(z1, z2)
         return loss
 
-    def on_train_start(self) -> None:
-        self.valid_metric_best.reset()
-
     def training_step(self, batch: Any, batch_idx: int) -> Any:
         loss = self.model_step(batch, batch_idx)
         self.log(
@@ -303,7 +304,7 @@ class SingleReIdLitModule(SingleLitModule):
     def training_step(self, batch: Any, batch_idx: int) -> Any:
         embeddings, targets = self.model_step(batch, batch_idx)
         loss, logits = self.loss(embeddings, batch["label"])
-        preds = torch.softmax(logits, dim=1)
+        preds = self.output_activation(logits)
         self.log(
             f"{self.loss.__class__.__name__}/train",
             loss,
@@ -322,7 +323,7 @@ class SingleReIdLitModule(SingleLitModule):
         embeddings, targets = self.model_step(batch, batch_idx)
         with torch.no_grad():
             loss, logits = self.loss(embeddings, batch["label"])
-        preds = torch.softmax(logits, dim=1)
+        preds = self.output_activation(logits)
         self.log(
             f"{self.loss.__class__.__name__}/valid",
             loss,
@@ -341,7 +342,7 @@ class SingleReIdLitModule(SingleLitModule):
         embeddings, targets = self.model_step(batch, batch_idx)
         with torch.no_grad():
             loss, logits = self.loss(embeddings, batch["label"])
-        preds = torch.softmax(logits, dim=1)
+        preds = self.output_activation(logits)
         self.log(
             f"{self.loss.__class__.__name__}/test", loss, **self.logging_params
         )
