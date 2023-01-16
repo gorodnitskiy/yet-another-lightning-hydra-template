@@ -35,4 +35,4 @@ logging:
   sync_dist: True
   prog_bar: True
 
-parts: ["label1", "label2"]
+heads: ["label1", "label2"]

@@ -1,17 +1,23 @@
 model:
   _target_: src.modules.models.classification.ClassifierMultipleHead
-  model_name: "torchvision.models/resnext50_32x4d"
-  use_pretrained: True
+  model_name: "torchvision.models/vit_b_16"
+  model_repo: null
+  weights: "IMAGENET1K_SWAG_E2E_V1"
   num_classes: [92, 4]
-  freeze_params: null
-  bias: True
-  groups: 64
+  freeze_layers: null
 
 loss:
   _target_: "torch.nn.CrossEntropyLoss"
 
 metrics:
   main:
-    _target_: "src.modules.metrics.Accuracy"
+    _target_: "torchmetrics.Accuracy"
+    task: "multiclass"
+    num_classes: 10
+    top_k: 1
   valid_best:
     _target_: "torchmetrics.MaxMetric"
+
+output_activation:
+  _target_: "torch.softmax"
+  dim: 1

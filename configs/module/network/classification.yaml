@@ -1,13 +1,13 @@
 model:
   _target_: src.modules.models.classification.Classifier
   model_name: "torchvision.models/mobilenet_v3_large"
-  use_pretrained: True
-  num_classes: 2
-  freeze_params: null
-  bias: True
+  model_repo: null
+  weights: "IMAGENET1K_V2"
+  num_classes: 1
+  freeze_layers: null
 
 loss:
-  _target_: "torch.nn.CrossEntropyLoss"
+  _target_: "torch.nn.BCEWithLogitsLoss"
 
 metrics:
   main:
@@ -19,3 +19,6 @@ metrics:
     AUROC:
       _target_: "torchmetrics.AUROC"
       task: "binary"
+
+output_activation:
+  _target_: "torch.sigmoid"

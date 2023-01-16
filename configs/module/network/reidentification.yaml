@@ -1,17 +1,18 @@
 model:
-  _target_: src.modules.models.reindetification.ReIdentificator
-  model_name: "torchvision.models/resnet18"
-  use_pretrained: True
-  embedding_size: 512
-  proj_hidden_dim: 1536
-  bias: True
+  _target_: src.modules.models.reidentification.ReIdentificator
+  model_name: "torchvision.models/mobilenet_v3_large"
+  model_repo: null
+  weights: "IMAGENET1K_V2"
+  head_type: "gem" # "fc"
+  embedding_size: 128
+  proj_hidden_dim: 2880
+  kernel_size: [5, 7]
   p: 3
   gem_trainable: False
-  head_type: "fc" # 'gem'
 
 loss:
   _target_: "src.modules.losses.AngularPenaltySMLoss"
-  embedding_size: 512
+  embedding_size: 128
   num_classes: 57457
   loss_type: "CosFace"
 
@@ -20,3 +21,7 @@ metrics:
     _target_: "src.modules.metrics.Accuracy"
   valid_best:
     _target_: "torchmetrics.MaxMetric"
+
+output_activation:
+  _target_: "torch.softmax"
+  dim: 1

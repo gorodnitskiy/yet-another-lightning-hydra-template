@@ -17,3 +17,7 @@ metrics:
     top_k: 1
   valid_best:
     _target_: "torchmetrics.MaxMetric"
+
+output_activation:
+  _target_: "torch.softmax"
+  dim: 1
