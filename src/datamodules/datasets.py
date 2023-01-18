@@ -19,7 +19,7 @@ class ClassificationDataset(BaseDataset):
         transforms: Optional[Callable] = None,
         read_mode: str = "pillow",
         to_gray: bool = False,
-        label_type: str = "torch.FloatTensor",
+        label_type: str = "torch.LongTensor",
         **kwargs: Any,
     ) -> None:
         """ClassificationDataset.
