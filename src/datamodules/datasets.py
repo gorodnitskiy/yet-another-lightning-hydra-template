@@ -1,4 +1,5 @@
 import json
+import random
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
@@ -19,6 +20,7 @@ class ClassificationDataset(BaseDataset):
         transforms: Optional[Callable] = None,
         read_mode: str = "pillow",
         to_gray: bool = False,
+        shuffle_on_load: bool = True,
         label_type: str = "torch.LongTensor",
         **kwargs: Any,
     ) -> None:
@@ -31,6 +33,9 @@ class ClassificationDataset(BaseDataset):
             transforms (Callable): Transforms.
             read_mode (str): Image read mode, `pillow` or `cv2`. Default to `pillow`.
             to_gray (bool): Images to gray mode. Default to False.
+            shuffle_on_load (bool): Deterministically shuffle the dataset on load
+                to avoid the case when Dataset slice contains only one class due to
+                annotations dict keys order. Default to True.
             label_type (str): Label torch.tensor type. Default to torch.FloatTensor.
             kwargs (Any): Additional keyword arguments for H5PyFile class.
         """
@@ -55,6 +60,9 @@ class ClassificationDataset(BaseDataset):
                     self.annotation[path] = label
 
         self.keys = list(self.annotation)
+        if shuffle_on_load:
+            random.Random(shuffle_on_load).shuffle(self.keys)
+
         self.label_type = label_type
 
         data_path = "" if data_path is None else data_path
