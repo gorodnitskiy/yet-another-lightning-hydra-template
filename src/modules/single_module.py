@@ -96,6 +96,11 @@ class SingleLitModule(BaseLitModule):
 
         self.train_add_metrics(preds, targets)
         self.log_dict(self.train_add_metrics, **self.logging_params)
+
+        # Lightning keeps track of `training_step` outputs and metrics on GPU for
+        # optimization purposes. This works well for medium size datasets, but
+        # becomes an issue with larger ones. It might show up as a CPU memory leak
+        # during training step. Keep it in mind.
         return {"loss": loss}
 
     def training_epoch_end(self, outputs: List[Any]) -> None:
@@ -303,7 +308,7 @@ class SingleReIdLitModule(SingleLitModule):
             self.train_metric,
             **self.logging_params,
         )
-        return {"loss": loss, "preds": preds, "targets": targets}
+        return {"loss": loss}
 
     def validation_step(self, batch: Any, batch_idx: int) -> Any:
         embeddings, targets = self.model_step(batch, batch_idx)

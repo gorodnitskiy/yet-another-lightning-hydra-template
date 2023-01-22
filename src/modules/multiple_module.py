@@ -77,13 +77,10 @@ class MultipleLitModule(BaseLitModule):
 
     def training_step(self, batch: Any, batch_idx: int) -> Any:
         losses = []
-        outputs = {"preds": {}, "targets": {}}
         for idx, head in enumerate(self.heads):
             logits = self.forward(batch[head]["image"])[idx]
             preds = self.output_activation(logits)
             targets = batch[head]["label"]
-            outputs["preds"][head] = preds
-            outputs["targets"][head] = targets
 
             loss = self.loss(logits, targets)
             self.log(
@@ -101,8 +98,7 @@ class MultipleLitModule(BaseLitModule):
             loss,
             **self.logging_params,
         )
-        outputs["loss"] = loss
-        return outputs
+        return {"loss": loss}
 
     def training_epoch_end(self, outputs: List[Any]) -> None:
         pass
