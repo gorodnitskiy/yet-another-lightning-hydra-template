@@ -53,17 +53,18 @@ class SingleLitModule(BaseLitModule):
         self.output_activation = hydra.utils.instantiate(
             network.output_activation, _partial_=True
         )
-        self.train_metric, _, self.train_add_metrics = load_metrics(
+
+        main_metric, valid_metric_best, add_metrics = load_metrics(
             network.metrics
         )
-        (
-            self.valid_metric,
-            self.valid_metric_best,
-            self.valid_add_metrics,
-        ) = load_metrics(network.metrics)
-        self.test_metric, _, self.test_add_metrics = load_metrics(
-            network.metrics
-        )
+        self.train_metric = main_metric.clone()
+        self.train_add_metrics = add_metrics.clone(postfix="/train")
+        self.valid_metric = main_metric.clone()
+        self.valid_metric_best = valid_metric_best.clone()
+        self.valid_add_metrics = add_metrics.clone(postfix="/valid")
+        self.test_metric = main_metric.clone()
+        self.test_add_metrics = add_metrics.clone(postfix="/test")
+
         self.save_hyperparameters(logger=False)
 
     def model_step(self, batch: Any, *args: Any, **kwargs: Any) -> Any:
@@ -93,14 +94,9 @@ class SingleLitModule(BaseLitModule):
             **self.logging_params,
         )
 
-        for train_add_metric in self.train_add_metrics:
-            add_metric_value = train_add_metric(preds, targets)
-            self.log(
-                f"{train_add_metric.__class__.__name__}/train",
-                add_metric_value,
-                **self.logging_params,
-            )
-        return {"loss": loss, "preds": preds, "targets": targets}
+        self.train_add_metrics(preds, targets)
+        self.log_dict(self.train_add_metrics, **self.logging_params)
+        return {"loss": loss}
 
     def training_epoch_end(self, outputs: List[Any]) -> None:
         # `outputs` is a list of dicts returned from `training_step()`
@@ -127,13 +123,8 @@ class SingleLitModule(BaseLitModule):
             **self.logging_params,
         )
 
-        for valid_add_metric in self.valid_add_metrics:
-            add_metric_value = valid_add_metric(preds, targets)
-            self.log(
-                f"{valid_add_metric.__class__.__name__}/valid",
-                add_metric_value,
-                **self.logging_params,
-            )
+        self.valid_add_metrics(preds, targets)
+        self.log_dict(self.valid_add_metrics, **self.logging_params)
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def validation_epoch_end(self, outputs: List[Any]) -> None:
@@ -161,13 +152,8 @@ class SingleLitModule(BaseLitModule):
             **self.logging_params,
         )
 
-        for test_add_metric in self.test_add_metrics:
-            add_metric_value = test_add_metric(preds, targets)
-            self.log(
-                f"{test_add_metric.__class__.__name__}/test",
-                add_metric_value,
-                **self.logging_params,
-            )
+        self.test_add_metrics(preds, targets)
+        self.log_dict(self.test_add_metrics, **self.logging_params)
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def test_epoch_end(self, outputs: List[Any]) -> None:

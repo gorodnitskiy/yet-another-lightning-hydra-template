@@ -1,6 +1,7 @@
 from typing import Any, List
 
 import hydra
+import torch
 from omegaconf import DictConfig
 
 from src.modules.components.lit_module import BaseLitModule
@@ -38,28 +39,44 @@ class MultipleLitModule(BaseLitModule):
         self.output_activation = hydra.utils.instantiate(
             network.output_activation, _partial_=True
         )
-        (
-            self.total_valid_metric,
-            self.total_valid_metric_best,
-            _,
-        ) = load_metrics(network.metrics)
-        self.train_metric, _, self.train_add_metrics = load_metrics(
-            network.metrics
-        )
-        self.valid_metric, _, self.valid_add_metrics = load_metrics(
-            network.metrics
-        )
-        self.test_metric, _, self.test_add_metrics = load_metrics(
-            network.metrics
-        )
         self.heads = heads
+
+        main_metric, valid_metric_best, add_metrics = load_metrics(
+            network.metrics
+        )
+        for head in heads:
+            for step in ("train", "valid", "test"):
+                setattr(self, f"{step}_metric_{head}", main_metric.clone())
+                setattr(
+                    self,
+                    f"{step}_add_metrics_{head}",
+                    add_metrics.clone(postfix=f"/{step}_{head}"),
+                )
+        self.total_valid_metric = main_metric.clone()
+        self.total_valid_metric_best = valid_metric_best.clone()
+
         self.save_hyperparameters(logger=False)
 
     def on_train_start(self) -> None:
         self.total_valid_metric_best.reset()
 
+    def log_metrics(
+        self, step: str, head: str, preds: torch.Tensor, targets: torch.Tensor
+    ) -> None:
+        metric = getattr(self, f"{step}_metric_{head}")
+        metric(preds, targets)
+        self.log(
+            f"{metric.__class__.__name__}/{step}_{head}",
+            metric,
+            **self.logging_params,
+        )
+
+        add_metrics = getattr(self, f"{step}_add_metrics_{head}")
+        add_metrics(preds, targets)
+        self.log_dict(add_metrics, **self.logging_params)
+
     def training_step(self, batch: Any, batch_idx: int) -> Any:
-        loss = None
+        losses = []
         outputs = {"preds": {}, "targets": {}}
         for idx, head in enumerate(self.heads):
             logits = self.forward(batch[head]["image"])[idx]
@@ -68,32 +85,17 @@ class MultipleLitModule(BaseLitModule):
             outputs["preds"][head] = preds
             outputs["targets"][head] = targets
 
-            curr_loss = self.loss(logits, targets)
+            loss = self.loss(logits, targets)
             self.log(
                 f"{self.loss.__class__.__name__}/train_{head}",
-                curr_loss,
+                loss,
                 **self.logging_params,
             )
-            if idx == 0:
-                loss = curr_loss
-            else:
-                loss += curr_loss
+            losses.append(loss)
 
-            self.train_metric(preds, targets)
-            self.log(
-                f"{self.train_metric.__class__.__name__}/train_{head}",
-                self.train_metric,
-                **self.logging_params,
-            )
+            self.log_metrics("train", head, preds, targets)
 
-            for train_add_metric in self.train_add_metrics:
-                add_metric_value = train_add_metric(preds, targets)
-                self.log(
-                    f"{train_add_metric.__class__.__name__}/train_{head}",
-                    add_metric_value,
-                    **self.logging_params,
-                )
-
+        loss = sum(losses)
         self.log(
             f"{self.loss.__class__.__name__}/train",
             loss,
@@ -120,21 +122,7 @@ class MultipleLitModule(BaseLitModule):
             **self.logging_params,
         )
 
-        self.valid_metric(preds, targets)
-        self.log(
-            f"{self.valid_metric.__class__.__name__}/valid_{head}",
-            self.valid_metric,
-            **self.logging_params,
-        )
-
-        for valid_add_metric in self.valid_add_metrics:
-            add_metric_value = valid_add_metric(preds, targets)
-            self.log(
-                f"{valid_add_metric.__class__.__name__}/valid_{head}",
-                add_metric_value,
-                **self.logging_params,
-            )
-
+        self.log_metrics("valid", head, preds, targets)
         self.total_valid_metric.update(preds, targets)
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -146,7 +134,6 @@ class MultipleLitModule(BaseLitModule):
             self.total_valid_metric_best.compute(),
             **self.logging_params,
         )
-        self.total_valid_metric.reset()
 
     def test_step(
         self, batch: Any, batch_idx: int, dataloader_idx: int = 0
@@ -163,21 +150,7 @@ class MultipleLitModule(BaseLitModule):
             **self.logging_params,
         )
 
-        self.test_metric(preds, targets)
-        self.log(
-            f"{self.test_metric.__class__.__name__}/test_{head}",
-            self.test_metric,
-            **self.logging_params,
-        )
-
-        for test_add_metric in self.test_add_metrics:
-            add_metric_value = test_add_metric(preds, targets)
-            self.log(
-                f"{test_add_metric.__class__.__name__}/test_{head}",
-                add_metric_value,
-                **self.logging_params,
-            )
-
+        self.log_metrics("test", head, preds, targets)
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def test_epoch_end(self, outputs: List[Any]) -> None:
