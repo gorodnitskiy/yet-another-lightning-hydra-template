@@ -1,3 +1,4 @@
+import argparse
 import warnings
 from functools import wraps
 from importlib.util import find_spec
@@ -291,6 +292,39 @@ def instantiate_plugins(cfg: DictConfig) -> Optional[List[Any]]:
     return plugins
 
 
+def get_args_parser() -> argparse.ArgumentParser:
+    """Get parser for additional Hydra's command line flags."""
+    parser = argparse.ArgumentParser(
+        description="Additional Hydra's command line flags parser."
+    )
+
+    parser.add_argument(
+        "--config-path",
+        "-cp",
+        nargs="?",
+        default=None,
+        help="""Overrides the config_path specified in hydra.main().
+                    The config_path is absolute or relative to the Python file declaring @hydra.main()""",
+    )
+
+    parser.add_argument(
+        "--config-name",
+        "-cn",
+        nargs="?",
+        default=None,
+        help="Overrides the config_name specified in hydra.main()",
+    )
+
+    parser.add_argument(
+        "--config-dir",
+        "-cd",
+        nargs="?",
+        default=None,
+        help="Adds an additional config dir to the config search path",
+    )
+    return parser
+
+
 def register_custom_resolvers(
     version_base: str, config_path: str, config_name: str
 ) -> Callable:
@@ -313,6 +347,16 @@ def register_custom_resolvers(
         Callable: Decorator that registers custom resolvers before running
             main function.
     """
+
+    # parse additional Hydra's command line flags
+    parser = get_args_parser()
+    args, _ = parser.parse_known_args()
+    if args.config_path:
+        config_path = args.config_path
+    if args.config_dir:
+        config_path = args.config_dir
+    if args.config_name:
+        config_name = args.config_name
 
     # register of replace resolver
     if not OmegaConf.has_resolver("replace"):
