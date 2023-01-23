@@ -86,7 +86,7 @@ class ClassificationDataset(BaseDataset):
         image = self._read_image_(source)
         image = self._process_image_(image)
         label = torch.tensor(self.annotation[key]).type(self.label_type)
-        return {"image": image.float(), "label": label, "name": key}
+        return {"image": image.float(), "label": label}
 
     def get_weights(self) -> List[float]:
         label_list = [self.annotation[key] for key in self.keys]
@@ -111,12 +111,7 @@ class ClassificationVicRegDataset(ClassificationDataset):
         z1 = self._process_image_(image1)
         z2 = self._process_image_(image2)
         label = torch.tensor(self.annotation[key]).type(self.label_type)
-        return {
-            "z1": z1.float(),
-            "z2": z2.float(),
-            "label": label,
-            "name": key,
-        }
+        return {"z1": z1.float(), "z2": z2.float(), "label": label}
 
 
 class NoLabelsDataset(BaseDataset):
@@ -165,7 +160,7 @@ class NoLabelsDataset(BaseDataset):
         path = self.dirname / Path(key)
         image = self._read_image_(path)
         image = self._process_image_(image)
-        return {"image": image, "name": key}
+        return {"image": image}
 
     def __len__(self) -> int:
         return len(self.keys)
