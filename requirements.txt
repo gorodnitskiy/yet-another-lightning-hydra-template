@@ -24,7 +24,7 @@ sh
 omegaconf
 tqdm
 tensorflow
-pynvml==8.0.4
+pynvml
 
 # --------- data --------- #
 numpy
