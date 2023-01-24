@@ -1,25 +1,25 @@
+import subprocess  # nosec B404, B603
 from pathlib import Path
 from shutil import copytree
-from subprocess import (  # nosec B404, B603
-    STDOUT,
-    SubprocessError,
-    check_output,
-)
+from typing import Any
 
 from omegaconf import DictConfig
 
 
-def run(cmd, allow_fail=True, no_env=True):
+def run_sh_command(
+    cmd: Any, allow_fail: bool = True, no_env: bool = True, **kwargs: Any
+) -> str:
     """Run shell command by subprocess."""
     try:
-        output = check_output(
+        output = subprocess.check_output(
             cmd,
-            stderr=STDOUT,
+            stderr=subprocess.STDOUT,
             text=True,
             shell=True,  # nosec B604
             env={} if no_env else None,
+            **kwargs,
         )
-    except SubprocessError as exception:
+    except subprocess.SubprocessError as exception:
         if allow_fail:
             output = f"{exception}\n\n{exception.output}"
         else:
@@ -29,41 +29,32 @@ def run(cmd, allow_fail=True, no_env=True):
 
 def log_pip_metadata(path: Path) -> None:
     """Collect pip metadata."""
-    (path / "pip.log").write_text(
-        "\n".join(
-            [
-                run("pip freeze --disable-pip-version-check"),
-                run("pip freeze --disable-pip-version-check --user"),
-            ]
-        )
-    )
+    outputs = [
+        run_sh_command("pip freeze --disable-pip-version-check"),
+        run_sh_command("pip freeze --disable-pip-version-check --user"),
+    ]
+    (path / "pip.log").write_text("\n".join(outputs))
 
 
 def log_git_metadata(path: Path) -> None:
     """Collect git metadata."""
-    (path / "git.log").write_text(
-        "\n".join(
-            [
-                run("git describe --tags --long --dirty --always"),
-                run("git describe --all --long --dirty --always"),
-                run("git branch --verbose --verbose --all"),
-                run("git remote --verbose"),
-                run("git status"),
-            ]
-        )
-    )
+    outputs = [
+        run_sh_command("git describe --tags --long --dirty --always"),
+        run_sh_command("git describe --all --long --dirty --always"),
+        run_sh_command("git branch --verbose --verbose --all"),
+        run_sh_command("git remote --verbose"),
+        run_sh_command("git status"),
+    ]
+    (path / "git.log").write_text("\n".join(outputs))
 
 
 def log_gpu_metadata(path: Path) -> None:
     """Collect GPU metadata."""
-    (path / "gpu.log").write_text(
-        "\n".join(
-            [
-                run("env | grep -E '(NV|CU)' | sort", no_env=False),
-                run("nvidia-smi"),
-            ]
-        )
-    )
+    outputs = [
+        run_sh_command("env | grep -E '(NV|CU)' | sort", no_env=False),
+        run_sh_command("nvidia-smi"),
+    ]
+    (path / "gpu.log").write_text("\n".join(outputs))
 
 
 def log_metadata(cfg: DictConfig) -> None:
