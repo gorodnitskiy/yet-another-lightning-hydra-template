@@ -20,7 +20,6 @@ pyrootutils
 pre-commit
 rich
 pytest
-sh
 omegaconf
 tqdm
 tensorflow
