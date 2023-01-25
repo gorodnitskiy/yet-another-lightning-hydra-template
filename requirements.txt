@@ -20,6 +20,7 @@ pyrootutils
 pre-commit
 rich
 pytest
+sh; platform_system != 'Windows'
 omegaconf
 tqdm
 tensorflow
