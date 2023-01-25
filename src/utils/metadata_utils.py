@@ -6,9 +6,7 @@ from typing import Any
 from omegaconf import DictConfig
 
 
-def run_sh_command(
-    cmd: Any, allow_fail: bool = True, no_env: bool = True, **kwargs: Any
-) -> str:
+def run_sh_command(cmd: Any, allow_fail: bool = True, **kwargs: Any) -> str:
     """Run shell command by subprocess."""
     try:
         output = subprocess.check_output(
@@ -16,7 +14,6 @@ def run_sh_command(
             stderr=subprocess.STDOUT,
             text=True,
             shell=True,  # nosec B604
-            env={} if no_env else None,
             **kwargs,
         )
     except subprocess.SubprocessError as exception:
@@ -51,7 +48,7 @@ def log_git_metadata(path: Path) -> None:
 def log_gpu_metadata(path: Path) -> None:
     """Collect GPU metadata."""
     outputs = [
-        run_sh_command("env | grep -E '(NV|CU)' | sort", no_env=False),
+        run_sh_command("env | grep -E '(NV|CU)' | sort"),
         run_sh_command("nvidia-smi"),
     ]
     (path / "gpu.log").write_text("\n".join(outputs))
