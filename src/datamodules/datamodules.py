@@ -10,7 +10,7 @@ from src.datamodules.components.transforms import TransformsWrapper
 
 
 class SingleDataModule(LightningDataModule):
-    """Example of LightningDataModule for MNIST dataset.
+    """Example of LightningDataModule for single dataset.
 
     A DataModule implements 5 key methods:
         def prepare_data(self):
