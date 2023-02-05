@@ -130,6 +130,7 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
         utils.log_hyperparameters(object_dict)
 
     # Log metadata
+    log.info("Logging metadata!")
     utils.log_metadata(cfg)
 
     # Train the model
