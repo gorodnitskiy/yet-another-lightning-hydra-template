@@ -1,5 +1,7 @@
 _target_: src.datamodules.mnist_datamodule.MNISTDataModule
 
+# this config file is used for running the template default tests
+
 datasets:
   data_dir: ${paths.data_dir}
   train_val_test_split: [55_000, 5_000, 10_000]

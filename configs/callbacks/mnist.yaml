@@ -1,3 +1,5 @@
+# this config file is used for running the template default tests
+
 defaults:
   - model_checkpoint.yaml
   - early_stopping.yaml

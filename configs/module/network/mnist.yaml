@@ -1,3 +1,5 @@
+# this config file is used for running the template default tests
+
 model:
   _target_: src.modules.models.simple_dense_net.SimpleDenseNet
   input_size: 784
