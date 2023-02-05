@@ -1,5 +1,7 @@
 _target_: src.modules.single_module.MNISTLitModule
 
+# this config file is used for running the template default tests
+
 # To avoiding copying of loss and metric names, during hydra initialization
 # there is custom resolver which replaces __loss__ to loss.__class__.__name__
 # and __metric__ to main_metric.__class__.__name__,
