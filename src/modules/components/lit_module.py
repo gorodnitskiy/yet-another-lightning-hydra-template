@@ -1,11 +1,9 @@
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any
 
 import hydra
 import torch
 from omegaconf import DictConfig
-from pytorch_grad_cam import GradCAMPlusPlus
 from pytorch_lightning import LightningModule
-from torch.utils.data import DataLoader
 
 
 class BaseLitModule(LightningModule):
@@ -54,39 +52,3 @@ class BaseLitModule(LightningModule):
                     lr_scheduler_dict[key] = value
             return {"optimizer": optimizer, "lr_scheduler": lr_scheduler_dict}
         return {"optimizer": optimizer}
-
-    def check_grad_cam(
-        self,
-        dataloader: DataLoader,
-        target_layer: List[Any],
-        target_category: Any,
-        dataloader_idx: Optional[int] = None,
-        reshape_transform: Optional[Callable] = None,
-        use_cuda: bool = False,
-    ) -> Tuple[Any, ...]:
-        grad_cam = GradCAMPlusPlus(
-            model=self,
-            target_layer=target_layer,
-            use_cuda=use_cuda,
-            reshape_transform=reshape_transform,
-        )
-
-        batch = next(iter(dataloader))
-        images, labels = batch["image"], batch["label"]
-        grad_cam.batch_size = len(images)
-        logits = self.forward(images)
-        if dataloader_idx:
-            logits = logits[dataloader_idx]
-        logits = logits.squeeze(1)
-        pred = logits.sigmoid().detach().cpu().numpy() * 100
-        labels = labels.cpu().numpy()
-
-        grayscale_cam = grad_cam(
-            input_tensor=images,
-            target_category=target_category,
-            eigen_smooth=True,
-        )
-        images = images.detach().cpu().numpy().transpose(0, 2, 3, 1)
-        images -= images.min()
-        images /= images.max()
-        return images, grayscale_cam, pred, labels
