@@ -276,7 +276,7 @@ class TimeEstimator:
         return f"[{elapsed}>{eta}]"
 
 
-class LiteProgressBar(ProgressBarBase):
+class LightProgressBar(ProgressBarBase):
     def __init__(self) -> None:
         super().__init__()
         self.last_epoch = 0

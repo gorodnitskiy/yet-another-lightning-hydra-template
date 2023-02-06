@@ -5,7 +5,7 @@ ssl:
   - rich_progress_bar.yaml
   - wandb.yaml
   - _self_
-#  - lite_progress_bar.yaml
+#  - light_progress_bar.yaml
 
 # To avoiding copying of loss and metric names, during hydra initialization
 # there is custom resolver which replaces __loss__ to loss.__class__.__name__

@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
-from src.callbacks.lite_progress_bar import (
-    LiteProgressBar,
+from src.callbacks.light_progress_bar import (
+    LightProgressBar,
     StageProgressBar,
     TimeEstimator,
     dict_to_multi_dict,
@@ -30,6 +30,6 @@ def test_time_estimator(eta_threshold: float = 0.0001):
     _ = str(time_estimator)
 
 
-def test_lite_progress_bar(progress_bar_status_message: Dict[str, Any]):
-    lite_progress_bar = LiteProgressBar()
-    lite_progress_bar.pbar.update(progress_bar_status_message)
+def test_light_progress_bar(progress_bar_status_message: Dict[str, Any]):
+    light_progress_bar = LightProgressBar()
+    light_progress_bar.pbar.update(progress_bar_status_message)
