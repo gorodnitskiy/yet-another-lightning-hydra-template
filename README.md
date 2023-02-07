@@ -956,7 +956,7 @@ Jupyter Notebook is a powerful tool for data analysis, visualization and present
 Such sections formatting can be used to have clean and understandable structure of a jupyter notebook:
 
 ```
-├── Summary                 <- Summary in the beginning of notebook: for fastly understanding what it is about
+├── Summary                 <- Summary: for fastly understanding what it is about
 │   ├── Objective           <- Objective of analysis
 │   ├── Methods             <- Methods which are using
 │   └── Results             <- Results of analysis
