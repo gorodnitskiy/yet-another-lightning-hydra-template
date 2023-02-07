@@ -98,7 +98,7 @@ In this particular case, the directory structure looks like:
 ├── tests                       <- Tests of any kind
 │
 ├── .dockerignore               <- List of files ignored by docker
-├── .gitattributes              <- List of files ignored for example by git lfs (linguist-detectable)
+├── .gitattributes              <- List of additional attributes to pathnames
 ├── .gitignore                  <- List of files ignored by git
 ├── .pre-commit-config.yaml     <- Configuration of pre-commit hooks for code formatting
 ├── Dockerfile                  <- Dockerfile
@@ -712,7 +712,7 @@ python src/train.py
 python src/train.py model.model_name="torchvision.models/vit_l_16"
 
 # train the model with override parameter and add new parameter
-python src/train.py model.model_name="torch.hub/vit_l_16_v2" ++model.model_repo="your-repository"
+python src/train.py model.model_name="torch.hub/vit_l_16_v2" ++model.model_repo="repository"
 ```
 
 ### Additional out-of-the-box features
