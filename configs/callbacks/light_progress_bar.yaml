@@ -1,2 +1,2 @@
-LightProgressBar:
+light_progress_bar:
   _target_: src.callbacks.light_progress_bar.LightProgressBar
