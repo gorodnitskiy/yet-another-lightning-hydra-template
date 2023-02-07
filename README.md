@@ -157,7 +157,13 @@ but if you need to do something more complex, here it is a general workflow:
 The template contains example with `MNIST` classification, which uses for tests by the way.
 If you run `python src/train.py`, you will get something like this:
 
-![Terminal screen when running pipeline](<>)
+<details>
+
+<summary><b>Show terminal screen when running pipeline</b></summary>
+
+![Terminal screen when running pipeline](https://user-images.githubusercontent.com/8071747/217344340-a336c01c-8b8c-48c4-beef-c5e1478537e4.jpg)
+
+</details>
 
 ### LightningDataModule
 
@@ -575,9 +581,9 @@ By default, the template contains few of them:
 - Rich Progress Bar
 
 However, there is an additional `LightProgressBar` callback, which might be more beautiful and useful, instead of using
-`RichProgressbar`.
+`RichProgressbar`:
 
-![LightProgressBar preview](<>)
+![LightProgressBar preview](https://user-images.githubusercontent.com/8071747/217344860-987e7ee4-f507-4df0-a0b1-2c1d81e7ea29.png)
 
 ### Extensions
 
@@ -1011,7 +1017,7 @@ Moreover, it can be advantageous to use:
 - Additional docker container runtime options for [managing resources constraints](https://docs.docker.com/config/containers/resource_constraints/), like `--cpuset-cpus`, `--gpus`, etc.
 - [NVTOP](https://github.com/Syllo/nvtop) - a (h)top like task monitor for AMD, Intel and NVIDIA GPUs.
 
-![NVTOP interface](<>)
+![NVTOP interface](https://user-images.githubusercontent.com/8071747/217345317-99f92914-c568-4c1a-9c54-053ace0315bc.png)
 
 Here it is some example of container running based on [`Dockerfile`](Dockerfile) and [`.dockerignore`](.dockerignore):
 
