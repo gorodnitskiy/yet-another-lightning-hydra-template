@@ -1,5 +1,25 @@
 # Yet Another Lightning Hydra Template
 
+Efficient workflow and reproducibility are extremely important components in every machine learning projects, which
+enable to:
+
+- Rapidly iterate over new models and compare different approaches faster.
+- Promote confidence in the results and transparency.
+- Save time and resources.
+
+[PyTorch Lightning](https://github.com/Lightning-AI/lightning) and [Hydra](https://github.com/facebookresearch/hydra)
+serve as the foundation upon this template. Such reasonable technology stack for deep learning prototyping offers a
+comprehensive and seamless solution, allowing you to effortlessly explore different tasks across a variety of hardware
+accelerators such as CPUs, multi-GPUs, and TPUs. Furthermore, it includes a curated collection of best practices and
+extensive documentation for greater clarity and comprehension.
+
+This template could be used as is for some basic tasks like Classification, Segmentation or Metric Learning, or be
+easily extended for any other tasks due to high-level modularity and scalable structure.
+
+As a baseline I have used gorgeous [Lightning Hydra Template](https://github.com/ashleve/lightning-hydra-template),
+reshaped and polished it, and implemented more features which can improve overall efficiency of workflow and
+reproducibility.
+
 ## Quick start
 
 ```shell
@@ -17,7 +37,7 @@ Or run the project in docker. See more in [Docker](#docker) section.
 
 - [Main technologies](#main-technologies)
 - [Project structure](#project-structure)
-- [Workflow: how it works](#workflow--how-it-works)
+- [Workflow - how it works](#workflow---how-it-works)
   - [Basic workflow](#basic-workflow)
   - [LightningDataModule](#lightningdatamodule)
   - [LightningModule](#lightningmodule)
@@ -35,6 +55,7 @@ Or run the project in docker. See more in [Docker](#docker) section.
 - [Logs](#logs)
 - [Data](#data)
 - [Notebooks](#notebooks)
+- [Hyperparameters search](#hyperparameters-search)
 - [Docker](#docker)
 - [Tests](#tests)
 - [Continuous integration](#continuous-integration)
@@ -109,7 +130,7 @@ In this particular case, the directory structure looks like:
 └── README.md
 ```
 
-## Workflow: how it works
+## Workflow - how it works
 
 Before starting a project, you need to think about the following things to unsure in results reproducibility:
 
@@ -339,7 +360,7 @@ class LitModel(LightningModule):
 </details>
 
 In the template, LightningModule has `model_step` method to adjust repeated operations, like `forward` or `loss`
-calculation, which require in `training_step`, `validation_step` and `test_step`.
+calculation, which are required in `training_step`, `validation_step` and `test_step`.
 
 #### Metrics
 
@@ -350,7 +371,7 @@ The template offers the following `Metrics API`:
 - `valid_best` metric: use for tracking the best validation metric. Usually it can be `MaxMetric` or `MinMetric`.
 - `additional` metrics: additional metrics.
 
-Each metric config should contain `_target_` key with metric class name and other parameters which requires by
+Each metric config should contain `_target_` key with metric class name and other parameters which are required by
 metric. The template allows to use any metrics, for example from
 [torchmetrics](https://torchmetrics.readthedocs.io/en/latest/) or implemented by yourself (see examples in
 `modules/metrics/components/` or [torchmetrics API](https://torchmetrics.readthedocs.io/en/latest/references/metric.html)).
@@ -386,7 +407,7 @@ Also, the template includes few manually implemented metrics:
 
 The template offers the following `Losses API`:
 
-- Loss config should contain `_target_` key with loss class name and other parameters which requires by loss.
+- Loss config should contain `_target_` key with loss class name and other parameters which are required by loss.
 - Parameter contains `weight` string in name will be wrapped by `torch.tensor` and cast to `torch.float` type before
   passing to loss due to requirements from most of the losses.
 
@@ -431,7 +452,7 @@ The template offers the following `Model API`, model config should contain:
 - `_target_`: key with model class name.
 - `model_name`: model name
 - `model_repo` (optional): model repository
-- Other parameters which requires by model.
+- Other parameters which are required by model.
 
 By default, model can be loaded from:
 
@@ -660,7 +681,7 @@ if __name__ == "__main__":
 
 ### Instantiating objects with Hydra
 
-For object instantiating from a config, it requires to contain `_target_` key with `class` or `function` name which
+For object instantiating from a config, it should contain `_target_` key with `class` or `function` name which
 would be instantiated with other parameters passed to config. Hydra provides `hydra.utils.instantiate()` (and its alias
 `hydra.utils.call()`) for instantiating objects and calling `class` or `function`. Prefer instantiate for creating
 objects and call for invoking functions.
@@ -751,7 +772,7 @@ datasets:
     json_path: ${paths.data_dir}/test/data.json
 ```
 
-- Colored logs for hydra/job_logging and hydra/hydra_logging
+- Colored logs for `hydra/job_logging` and `hydra/hydra_logging`
   ![Colorlog](https://hydra.cc/assets/images/colorlog-b20147697b9d16362f62a5d0bb58347f.png)
 - Hyperparameters sweepers: [Optuna](https://hydra.cc/docs/plugins/optuna_sweeper/),
   [Nevergrad](https://hydra.cc/docs/plugins/nevergrad_sweeper/), [Ax](https://hydra.cc/docs/plugins/ax_sweeper/)
@@ -783,7 +804,7 @@ initialized by Hydra.
 > doesn't apply by Hydra config parser.
 
 In template, it is implemented as a decorator `utils.register_custom_resolvers`, which allows to register all custom
-resolvers in a single place. It supports Hydra's command line flags, which requires to override config path, name or
+resolvers in a single place. It supports Hydra's command line flags, which are required to override config path, name or
 dir. By default, it allows to replace `__loss__` to `loss.__class__.__name__` and `__metric__` to
 `main_metric.__class__.__name__` via such syntax: `${replace:"__metric__/valid"}`. Use quotes for defining internal
 value in `${replace:"..."}` to avoid grammar problems with hydra config parser.
@@ -977,12 +998,12 @@ Such sections formatting can be used to have clean and understandable structure 
 Furthermore, it can be helpful to use special naming convention for jupyter notebooks: a number (for ordering), the
 creator's initials and a short description, all of this delimited by `-`, e.g. `1.0-asg-data-exploration.ipynb`.
 
-## Hyperparameter search
+## Hyperparameters search
 
-Hydra provides out-of-the-box hyperparameter sweepers: [Optuna, Nevergrad or Ax](https://hydra.cc/docs/plugins/optuna_sweeper/).
+Hydra provides out-of-the-box hyperparameters sweepers: [Optuna, Nevergrad or Ax](https://hydra.cc/docs/plugins/optuna_sweeper/).
 
-You can define hyperparameter search by adding new config file to [configs/hparams_search](configs/hparams_search).
-See example of [hyperparameter search config](configs/hparams_search/mnist_optuna.yaml). With this method, there is no
+You can define hyperparameters search by adding new config file to [configs/hparams_search](configs/hparams_search).
+See example of [hyperparameters search config](configs/hparams_search/mnist_optuna.yaml). With this method, there is no
 need to add extra code, everything is specified in a single configuration file. The only requirement is to return the
 optimized metric value from the launch file.
 
@@ -1001,7 +1022,7 @@ pipeline and its dependencies into a single container that can be easily deploye
 This is particularly useful due to it helps to ensure that the code will run consistently, regardless of the
 environment in which it is deployed.
 
-Docker image can require to include some additional packages depends on which device is used for running. For example,
+Docker image could require some additional packages depends on which device is used for running. For example,
 for running on cluster with NVIDIA GPUs it requires the CUDA Toolkit from NVIDIA. The CUDA Toolkit provides everything
 you need to develop GPU-accelerated applications, including GPU-accelerated libraries, a compiler, development tools
 and the CUDA runtime.
