@@ -130,7 +130,7 @@ class SingleLitModule(BaseLitModule):
 
         self.valid_add_metrics(preds, targets)
         self.log_dict(self.valid_add_metrics, **self.logging_params)
-        return {"loss": loss, "preds": preds, "targets": targets}
+        return {"loss": loss}
 
     def validation_epoch_end(self, outputs: List[Any]) -> None:
         valid_metric = self.valid_metric.compute()  # get current valid metric
@@ -159,7 +159,7 @@ class SingleLitModule(BaseLitModule):
 
         self.test_add_metrics(preds, targets)
         self.log_dict(self.test_add_metrics, **self.logging_params)
-        return {"loss": loss, "preds": preds, "targets": targets}
+        return {"loss": loss}
 
     def test_epoch_end(self, outputs: List[Any]) -> None:
         pass
@@ -327,7 +327,7 @@ class SingleReIdLitModule(SingleLitModule):
             self.valid_metric,
             **self.logging_params,
         )
-        return {"loss": loss, "preds": preds, "targets": targets}
+        return {"loss": loss}
 
     def test_step(self, batch: Any, batch_idx: int) -> Any:
         embeddings, targets = self.model_step(batch, batch_idx)
@@ -344,7 +344,7 @@ class SingleReIdLitModule(SingleLitModule):
             self.test_metric,
             **self.logging_params,
         )
-        return {"loss": loss, "preds": preds, "targets": targets}
+        return {"loss": loss}
 
     def predict_step(
         self, batch: Any, batch_idx: int, dataloader_idx: int = 0
