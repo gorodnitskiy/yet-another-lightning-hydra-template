@@ -5,33 +5,43 @@ defaults:
   - loaders: default.yaml
   - transforms: default.yaml
 
+# Choose labels tensor type in dataset based on loss type you use, e.g.:
+# - torch.nn.BCEWithLogitsLoss requires torch.FloatTensor
+# - torch.nn.CrossEntropyLoss requires torch.LongTensor
+
 datasets:
   train:
     label1:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/train/label1_data.json
       data_path: ${paths.data_dir}/train/label1_data.h5
+      label_type: "torch.LongTensor"
     label2:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/train/label2_data.json
       data_path: ${paths.data_dir}/train/label2_data.h5
+      label_type: "torch.FloatTensor"
 
   valid:
     label1:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/valid/label1_data.json
       data_path: ${paths.data_dir}/valid/label1_data.h5
+      label_type: "torch.LongTensor"
     label2:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/valid/label2_data.json
       data_path: ${paths.data_dir}/valid/label2_data.h5
+      label_type: "torch.FloatTensor"
 
   test:
     label1:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/test/label1_data.json
       data_path: ${paths.data_dir}/test/label1_data.h5
+      label_type: "torch.LongTensor"
     label2:
       _target_: src.datamodules.datasets.ClassificationDataset
       json_path: ${paths.data_dir}/test/label2_data.json
       data_path: ${paths.data_dir}/test/label2_data.h5
+      label_type: "torch.FloatTensor"
