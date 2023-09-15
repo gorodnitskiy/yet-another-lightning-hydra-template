@@ -120,7 +120,7 @@ class MultipleLitModule(BaseLitModule):
 
         self.log_metrics("valid", head, preds, targets)
         self.total_valid_metric.update(preds, targets)
-        return {"loss": loss, "preds": preds, "targets": targets}
+        return {"loss": loss}
 
     def validation_epoch_end(self, outputs: List[Any]) -> None:
         total_valid_metric = self.total_valid_metric.compute()
@@ -147,7 +147,7 @@ class MultipleLitModule(BaseLitModule):
         )
 
         self.log_metrics("test", head, preds, targets)
-        return {"loss": loss, "preds": preds, "targets": targets}
+        return {"loss": loss}
 
     def test_epoch_end(self, outputs: List[Any]) -> None:
         pass
