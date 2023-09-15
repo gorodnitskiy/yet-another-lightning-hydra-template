@@ -20,7 +20,7 @@ check_val_every_n_epoch: 1
 profiler: null
 deterministic: False
 reload_dataloaders_every_n_epochs: 0
-auto_lr_find: False,
+auto_lr_find: False
 replace_sampler_ddp: True
 detect_anomaly: False
 auto_scale_batch_size: False
