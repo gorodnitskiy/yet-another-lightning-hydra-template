@@ -274,12 +274,12 @@ class YourDataModule(LightningDataModule):
 
 See examples of `datamodule` configs in [configs/datamodule](configs/datamodule) folder.
 
-By default, the template has implemented the following DataModules:
+By default, the template contains the following DataModules:
 
 - [SingleDataModule](src/datamodules/datamodules.py) in which `train_dataloader`, `val_dataloader` and
   `test_dataloader` return single DataLoader, `predict_dataloader` returns list of DataLoaders
-- [MultipleDataModule](src/datamodules/datamodules.py) in which `train_dataloader` return dict of DataLoader,
-  `val_dataloader`,  `test_dataloader` and `predict_dataloader` return lists of DataLoaders
+- [MultipleDataModule](src/datamodules/datamodules.py) in which `train_dataloader` return dict of DataLoaders,
+  `val_dataloader`,  `test_dataloader` and `predict_dataloader` return list of DataLoaders
 
 In the template, DataModules has `_get_dataset_` method to simplify Datasets instantiation.
 
@@ -481,7 +481,7 @@ model:
 
 #### Implemented LightningModules
 
-By default, the template has implemented the following LightningModules:
+By default, the template contains the following LightningModules:
 
 - [SingleLitModule](src/modules/single_module.py) contains LightningModules for a few tasks, like ordinary,
   self-supervised learning and metric learning approach, which require single DataLoader on each step
@@ -539,6 +539,7 @@ logging:
 - Plugins instantiating
 - Trainer instantiating
 - Hyperparameteres and metadata logging
+- Training the model
 - Testing the best model
 
 See more details in [training loop](src/train.py) and [configs/train.yaml](configs/train.yaml).
@@ -683,8 +684,8 @@ if __name__ == "__main__":
 
 For object instantiating from a config, it should contain `_target_` key with `class` or `function` name which
 would be instantiated with other parameters passed to config. Hydra provides `hydra.utils.instantiate()` (and its alias
-`hydra.utils.call()`) for instantiating objects and calling `class` or `function`. Prefer instantiate for creating
-objects and call for invoking functions.
+`hydra.utils.call()`) for instantiating objects and calling `class` or `function`. Prefer `instantiate` for creating
+objects and `call` for invoking functions.
 
 ```yaml
 loss:
@@ -709,8 +710,11 @@ It supports few config [parameters conversion strategies](https://hydra.cc/docs/
   of the backing dataclass / attr class using OmegaConf.to_object
 - `all`: convert everything to primitive containers
 
+It is managed by adding an additional `_convert_` parameter to config.
+
 Moreover, it offers a [partial instantiation](https://hydra.cc/docs/advanced/instantiate_objects/overview/#partial-instantiation),
-which can be very useful, for example for function instantiation or recursively object instantiation.
+which can be very useful, for example for function instantiation or recursively object instantiation. It is managed by
+adding an additional `_partial_` bool parameter to config.
 
 ```yaml
 output_activation:
@@ -719,7 +723,9 @@ output_activation:
 ```
 
 ```
-output_activation = hydra.utils.instantiate(config.output_activation)
+output_activation = hydra.utils.instantiate(
+    config.output_activation, _partial_=True
+)
 preds = output_activation(logits)
 ```
 
@@ -732,13 +738,13 @@ It supports few operations from the command line as well:
 - Override a config value if it's already in the config, or add it otherwise, by using `++`
 
 ```shell
-# train the model with default config
+# train the model with the default config
 python src/train.py
 
-# train the model with override parameter
+# train the model with the overridden parameter
 python src/train.py model.model_name="torchvision.models/vit_l_16"
 
-# train the model with override parameter and add new parameter
+# train the model with the overridden parameter and add a new parameter
 python src/train.py model.model_name="torch.hub/vit_l_16_v2" ++model.model_repo="repository"
 ```
 
@@ -796,18 +802,19 @@ By default, OmegaConf supports the following resolvers:
 
 But it is a powerful tool, which allows to add any other custom resolvers! For example, it could be annoying to write
 loss or metric names in configs in each place where it might be required, like `early_stopping` config,
-`model_checkpoint` config, config contained scheduler params, or somewhere else. It could be solved by adding custom to
-replace `__loss__` and `__metric__` names by the actual loss or metric name, which is passed to the config and
-initialized by Hydra.
+`model_checkpoint` config, config contained scheduler params, or somewhere else. It could be solved by adding custom
+resolver for replacing `__loss__` and `__metric__` names by the actual loss or metric name, which is passed to the
+config and initialized by Hydra.
 
 > **Note**: You need to register custom resolvers before `hydra.main` or `Compose API` calls. Otherwise, it just
 > doesn't apply by Hydra config parser.
 
-In template, it is implemented as a decorator `utils.register_custom_resolvers`, which allows to register all custom
+In my template, it is implemented as a decorator `utils.register_custom_resolvers`, which allows to register all custom
 resolvers in a single place. It supports Hydra's command line flags, which are required to override config path, name or
 dir. By default, it allows to replace `__loss__` to `loss.__class__.__name__` and `__metric__` to
 `main_metric.__class__.__name__` via such syntax: `${replace:"__metric__/valid"}`. Use quotes for defining internal
-value in `${replace:"..."}` to avoid grammar problems with hydra config parser.
+value in `${replace:"..."}` to avoid grammar problems with hydra config parser. It can be easily expanded for any other
+purposes.
 
 ```python
 import hydra
