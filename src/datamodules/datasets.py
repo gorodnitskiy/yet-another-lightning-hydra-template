@@ -20,6 +20,7 @@ class ClassificationDataset(BaseDataset):
         transforms: Optional[Callable] = None,
         read_mode: str = "pillow",
         to_gray: bool = False,
+        include_names: bool = False,
         shuffle_on_load: bool = True,
         label_type: str = "torch.LongTensor",
         **kwargs: Any,
@@ -33,6 +34,8 @@ class ClassificationDataset(BaseDataset):
             transforms (Callable): Transforms.
             read_mode (str): Image read mode, `pillow` or `cv2`. Default to `pillow`.
             to_gray (bool): Images to gray mode. Default to False.
+            include_names (bool): If True, then `__getitem__` method would return image
+                name/path value with key `name`. Default to False.
             shuffle_on_load (bool): Deterministically shuffle the dataset on load
                 to avoid the case when Dataset slice contains only one class due to
                 annotations dict keys order. Default to True.
@@ -63,6 +66,7 @@ class ClassificationDataset(BaseDataset):
         if shuffle_on_load:
             random.Random(shuffle_on_load).shuffle(self.keys)
 
+        self.include_names = include_names
         self.label_type = label_type
 
         data_path = "" if data_path is None else data_path
@@ -86,6 +90,8 @@ class ClassificationDataset(BaseDataset):
         image = self._read_image_(source)
         image = self._process_image_(image)
         label = torch.tensor(self.annotation[key]).type(self.label_type)
+        if self.include_names:
+            return {"image": image.float(), "label": label, "name": key}
         return {"image": image.float(), "label": label}
 
     def get_weights(self) -> List[float]:
@@ -125,6 +131,7 @@ class NoLabelsDataset(BaseDataset):
         transforms: Optional[Callable] = None,
         read_mode: str = "pillow",
         to_gray: bool = False,
+        include_names: bool = False,
     ) -> None:
         """NoLabelsDataset.
 
@@ -137,6 +144,8 @@ class NoLabelsDataset(BaseDataset):
             transforms (Callable): Transforms.
             read_mode (str): Image read mode, `pillow` or `cv2`. Default to `pillow`.
             to_gray (bool): Images to gray mode. Default to False.
+            include_names (bool): If True, then `__getitem__` method would return image
+                name/path value with key `name`. Default to False.
         """
 
         super().__init__(transforms, read_mode, to_gray)
@@ -154,12 +163,15 @@ class NoLabelsDataset(BaseDataset):
         else:
             raise ValueError("Requires data_paths or json_paths.")
         self.dirname = Path(dirname if dirname else "")
+        self.include_names = include_names
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
         key = self.keys[index]
         path = self.dirname / Path(key)
         image = self._read_image_(path)
         image = self._process_image_(image)
+        if self.include_names:
+            return {"image": image, "name": key}
         return {"image": image}
 
     def __len__(self) -> int:
