@@ -15,6 +15,8 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
 
       - name: Find modified files
         id: file_changes
