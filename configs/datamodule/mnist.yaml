@@ -7,6 +7,8 @@ datasets:
   train_val_test_split: [55_000, 5_000, 10_000]
   seed: 42
 
+# During testing on MNIST, transformations should be the same
+# because we split initial train + test into train + valid + test
 transforms:
   train:
     order: ["normalize"]
