@@ -5,6 +5,7 @@ from omegaconf import DictConfig
 from torch.utils.data import ConcatDataset, random_split
 from torchvision.datasets import MNIST
 
+from src.datamodules.components.transforms import TransformsWrapper
 from src.datamodules.datamodules import SingleDataModule
 
 
@@ -31,17 +32,21 @@ class MNISTDataModule(SingleDataModule):
     def setup(self, stage: Optional[str] = None) -> None:
         # load and split datasets only if not loaded already
         if not self.train_set and not self.valid_set and not self.test_set:
-            self.transforms.set_mode("test")
+            # During testing on MNIST, transformations should be the same
+            # because we split initial train + test into train + valid + test
+            transforms_train = TransformsWrapper(self.transforms.get("train"))
+            transforms_test = TransformsWrapper(
+                self.transforms.get("valid_test_predict")
+            )
             train_set = MNIST(
                 self.cfg_datasets.get("data_dir"),
                 train=True,
-                transform=self.transforms,
+                transform=transforms_train,
             )
-            self.transforms.set_mode("test")
             test_set = MNIST(
                 self.cfg_datasets.get("data_dir"),
                 train=False,
-                transform=self.transforms,
+                transform=transforms_test,
             )
             dataset = ConcatDataset(datasets=[train_set, test_set])
             seed = self.cfg_datasets.get("seed")
