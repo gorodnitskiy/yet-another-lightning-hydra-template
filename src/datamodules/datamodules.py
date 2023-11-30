@@ -52,7 +52,7 @@ class SingleDataModule(LightningDataModule):
         super().__init__()
         self.cfg_datasets = datasets
         self.cfg_loaders = loaders
-        self.transforms = TransformsWrapper(transforms)
+        self.transforms = transforms
         self.train_set: Optional[Dataset] = None
         self.valid_set: Optional[Dataset] = None
         self.test_set: Optional[Dataset] = None
@@ -61,13 +61,11 @@ class SingleDataModule(LightningDataModule):
     def _get_dataset_(
         self, split_name: str, dataset_name: Optional[str] = None
     ) -> Dataset:
-        self.transforms.set_mode(split_name)
+        transforms = TransformsWrapper(self.transforms.get(split_name))
         cfg = self.cfg_datasets.get(split_name)
         if dataset_name:
             cfg = cfg.get(dataset_name)
-        dataset: Dataset = hydra.utils.instantiate(
-            cfg, transforms=self.transforms
-        )
+        dataset: Dataset = hydra.utils.instantiate(cfg, transforms=transforms)
         return dataset
 
     def setup(self, stage: Optional[str] = None) -> None:
